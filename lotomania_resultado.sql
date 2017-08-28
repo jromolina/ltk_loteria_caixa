@@ -6,7 +6,7 @@
 
   O nome das tabelas é baseado na descrição dentro do arquivo lotomania.xlsx.
  */
-
+drop table if exists lotomania.lotomania_resultado_num;
 CREATE TABLE lotomania.lotomania_resultado_num (
   concurso         NUMERIC      NOT NULL,
   data             DATE         NOT NULL,
@@ -132,7 +132,8 @@ comment on table lotomania.lotomania_resultado_num is
 'o campo terá o valor 1, se a bola foi sorteada, 0 (zero) caso contrário.'
 'Tem que ser sorteado 20 números, senão a restrição de verificação não irá deixar inserir o registro.';
 
-create table lotomania.lotofacil_resultado_bolas(
+drop TABLE if exists lotomania.lotomania_resultado_bolas;
+create table lotomania.lotomania_resultado_bolas(
   concurso numeric not null,
   
   b_1                    NUMERIC DEFAULT 0 ,
@@ -157,7 +158,7 @@ create table lotomania.lotofacil_resultado_bolas(
   b_20                   NUMERIC DEFAULT 0 ,
 
   CONSTRAINT lotomania_resultado_bolas_pk PRIMARY KEY (concurso),
-  CONSTRAINT lotomania_resultado_bolas_fk FOREIGN KEY (concurso) REFERENCES lotomania_resultado_num(concurso)
+  CONSTRAINT lotomania_resultado_bolas_fk FOREIGN KEY (concurso) REFERENCES lotomania.lotomania_resultado_num(concurso)
   on UPDATE cascade on DELETE cascade,
   CONSTRAINT lotomania_resultado_bolas_chk CHECK (
     (b_1 < b_2) AND
@@ -182,16 +183,18 @@ create table lotomania.lotofacil_resultado_bolas(
   )
 );
 
+drop table if exists lotomania.lotomania_resultado_par_impar;
 create TABLE lotomania.lotomania_resultado_par_impar(
   concurso numeric not null,
   qt_pares numeric not null,
   qt_impares numeric not null, 
   
   CONSTRAINT lotomania_resultado_par_impar_chk check((qt_pares + qt_impares) = 20),
-  CONSTRAINT lotomania_resultado_par_impar_fk FOREIGN KEY (concurso) REFERENCES lotomania_resultado_num(concurso) 
+  CONSTRAINT lotomania_resultado_par_impar_fk FOREIGN KEY (concurso) REFERENCES lotomania.lotomania_resultado_num(concurso)
   on UPDATE cascade on DELETE cascade
 );
 
+drop table if exists lotomania.lotomania_resultado_horizontal;
 create table lotomania.lotomania_resultado_horizontal(
   concurso numeric not null,
   hrz_1 numeric not null,
@@ -201,10 +204,11 @@ create table lotomania.lotomania_resultado_horizontal(
   hrz_5 numeric not null,
 
   CONSTRAINT lotomania_resultado_horizontal_chk check((hrz_1 + hrz_2 + hrz_3 + hrz_4 + hrz_5) = 20),
-  CONSTRAINT lotomania_resultado_horizontal_fk FOREIGN KEY (concurso) REFERENCES lotomania_resultado_num(concurso)
+  CONSTRAINT lotomania_resultado_horizontal_fk FOREIGN KEY (concurso) REFERENCES lotomania.lotomania_resultado_num(concurso)
   on update cascade on delete cascade
 );
 
+drop table if exists lotomania.lotomania_resultado_vertical;
 create table lotomania.lotomania_resultado_vertical(
   concurso numeric not null,
   vrt_1 numeric not null,
@@ -214,7 +218,7 @@ create table lotomania.lotomania_resultado_vertical(
   vrt_5 numeric not null,
 
   CONSTRAINT lotomania_resultado_vertical_chk check((vrt_1 + vrt_2 + vrt_3 + vrt_4 + vrt_5) = 20),
-  CONSTRAINT lotomania_resultado_vertical_fk FOREIGN KEY (concurso) REFERENCES lotomania_resultado_num(concurso)
+  CONSTRAINT lotomania_resultado_vertical_fk FOREIGN KEY (concurso) REFERENCES lotomania.lotomania_resultado_num(concurso)
   on update cascade on delete cascade
 );
 
@@ -224,7 +228,7 @@ create table lotomania.lotomania_resultado_metade_horizontal(
   met_hrz_2 numeric not null,
 
   CONSTRAINT lotomania_resultado_metade_horizontal_chk check((met_hrz_1 + met_hrz_2) = 20),
-  CONSTRAINT lotomania_resultado_metade_horizontal_fk FOREIGN KEY (concurso) REFERENCES lotomania_resultado_num(concurso)
+  CONSTRAINT lotomania_resultado_metade_horizontal_fk FOREIGN KEY (concurso) REFERENCES lotomania.lotomania_resultado_num(concurso)
   on update cascade on delete cascade
 );
 
@@ -234,7 +238,7 @@ create table lotomania.lotomania_resultado_metade_vertical(
   met_vrt_2 numeric not null,
 
   CONSTRAINT lotomania_resultado_metade_vertical_chk check((met_vrt_1 + met_vrt_2) = 20),
-  CONSTRAINT lotomania_resultado_metade_vertical_fk FOREIGN KEY (concurso) REFERENCES lotomania_resultado_num(concurso)
+  CONSTRAINT lotomania_resultado_metade_vertical_fk FOREIGN KEY (concurso) REFERENCES lotomania.lotomania_resultado_num(concurso)
   on update cascade on delete cascade
 );
 
@@ -284,7 +288,7 @@ create table lotomania.lotomania_resultado_quadrante(
   qd_4 numeric not null,
 
   CONSTRAINT lotomania_resultado_quadrante_chk check((qd_1 + qd_2 + qd_3 + qd_4) = 20),
-  CONSTRAINT lotomania_resultado_quadrante_fk FOREIGN KEY (concurso) REFERENCES lotomania_resultado_num(concurso)
+  CONSTRAINT lotomania_resultado_quadrante_fk FOREIGN KEY (concurso) REFERENCES lotomania.lotomania_resultado_num(concurso)
   on update cascade on delete cascade
 );
 
@@ -296,7 +300,7 @@ create table lotomania.lotomania_resultado_triangular(
   tr_4 numeric not null,
 
   CONSTRAINT lotomania_resultado_triangular_chk check((tr_1 + tr_2 + tr_3 + tr_4) = 20),
-  CONSTRAINT lotomania_resultado_triangular_fk FOREIGN KEY (concurso) REFERENCES lotomania_resultado_num(concurso)
+  CONSTRAINT lotomania_resultado_triangular_fk FOREIGN KEY (concurso) REFERENCES lotomania.lotomania_resultado_num(concurso)
   on update cascade on delete cascade
 );
 
@@ -308,7 +312,7 @@ create table lotomania.lotomania_resultado_losangular(
   ls_4 numeric not null,
 
   CONSTRAINT lotomania_resultado_losangular_chk check((ls_1 + ls_2 + ls_3 + ls_4) = 20),
-  CONSTRAINT lotomania_resultado_losangular_fk FOREIGN KEY (concurso) REFERENCES lotomania_resultado_num(concurso)
+  CONSTRAINT lotomania_resultado_losangular_fk FOREIGN KEY (concurso) REFERENCES lotomania.lotomania_resultado_num(concurso)
   on update cascade on delete cascade
 );
 
@@ -324,7 +328,7 @@ create table lotomania.lotomania_resultado_estrelar(
   st_8 numeric not null,
 
   CONSTRAINT lotomania_resultado_estrelar_chk check((st_1 + st_2 + st_3 + st_4 + st_5 + st_6 + st_7 + st_8) = 20),
-  CONSTRAINT lotomania_resultado_estrelar_fk FOREIGN KEY (concurso) REFERENCES lotomania_resultado_num(concurso)
+  CONSTRAINT lotomania_resultado_estrelar_fk FOREIGN KEY (concurso) REFERENCES lotomania.lotomania_resultado_num(concurso)
   on update cascade on delete cascade
 );
 
