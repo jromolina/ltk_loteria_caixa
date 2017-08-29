@@ -2,8 +2,9 @@
   Triggers para a tabela lotomania_resultado_num
  */
 
-drop trigger if exists lotomania.tg_lotomania_resultado_num;
+drop trigger if exists tg_lotomania_resultado_num on lotomania.lotomania_resultado_num;
 
+drop function if exists lotomania.fn_lotomania_resultado_num();
 CREATE FUNCTION lotomania.fn_lotomania_resultado_num()
   RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -23,18 +24,7 @@ DECLARE
 
   sqlInsertResultadoBolas character varying;
 
-  -- Variáveis
-  qt_horizontal_1 numeric;
-  qt_horizontal_2 numeric;
-  qt_horizontal_3 numeric;
-  qt_horizontal_4 numeric;
-
-  --
   uA numeric ;
-
-
-
-
 
 
 BEGIN
@@ -144,20 +134,12 @@ BEGIN
       resultado_num[98] := new.num_98;
       resultado_num[99] := new.num_99;
 
-      sqlInsertResultadoBolas := '';
       contador_de_bolas := 0;
       qt_pares := 0;
       qt_impares := 0;
       for uA in 0..99 LOOP
         if resultado_num[uA] = 1 then
           contador_de_bolas := contador_de_bolas + 1;
-
-          -- Só pode haver no máximo 20 bolas, se houver mais, emitir um erro.
-          if indiceBolas > 20 THEN
-            Raise Exception 'Há mais de 20 bolas sorteadas.';
-          END IF;
-
-          strInsertResultadoBolas := strInsertResultadoBolas || ', ' || uA::character varying;
 
           if mod(uA, 2) = 0 then
             qt_pares := qt_pares + 1;
@@ -179,100 +161,77 @@ BEGIN
         Delete from lotomania.lotomania_resultado_par_impar where concurso = old.concurso;
       END IF;
 
-      -- Insere na tabela.
-      Execute 'Insert into lotomania.lotomania_resultado_bolas (concurso, b_1, b_2, b_3, b_4, b_5,'
-        || 'b_6, b_7, b_8, b_9, b_10, b_11, b_12, b_13, b_14, b_15, b_16, b_17, b_18, b_19, b_20) values ('
-        || new.concurso || strInsertResultadoBolas || ')';
-
       -- Tabela par e impar.
       Execute 'Insert into lotomania.lotomania_resultado_par_impar (concurso, qt_pares, qt_impares) values ('
         || new.concurso || ', ' || qt_pares::character varying || ', ' || qt_impares::character varying || ')';
 
 
-      -- Calcular linhas horizontais pra inserir na tabela lotomania_resultado_horizontal.
-      qt_horizontal_1 := 0;
-      for uA in 1..20 loop
-        qt_horizontal_1 := qt_horizontal_1 + resultado_num[uA];
-      END LOOP;
+      execute lotomania.fn_lotomania_resultado_bolas(new.concurso, resultado_num);
 
-      qt_horizontal_2 := 0;
-      for uA in 21..40 loop
-        qt_horizontal_2 := qt_horizontal_2 + resultado_num[uA];
-      END LOOP;
+      execute lotomania.fn_lotomania_resultado_grupo_com_4(new.concurso, resultado_num);
 
-      qt_horizontal_3 := 0;
-      for uA in 41..60 loop
-        qt_horizontal_3 := qt_horizontal_3 + resultado_num[uA];
-      END LOOP;
+      execute lotomania.fn_lotomania_resultado_horizontal(new.concurso, resultado_num);
+      execute lotomania.fn_lotomania_resultado_vertical(new.concurso, resultado_num);
 
-      qt_horizontal_4 := 0;
-      for uA in 61..80 loop
-        qt_horizontal_4 := qt_horizontal_4 + resultado_num[uA];
-      END LOOP;
+      execute lotomania.fn_lotomania_resultado_metade_horizontal(new.concurso, resultado_num);
+      execute lotomania.fn_lotomania_resultado_metade_vertical(new.concurso, resultado_num);
 
-      qt_horizontal_5 := 0;
-      for uA in 81..99 loop
-        qt_horizontal_5 := qt_horizontal_5 + resultado_num[uA];
-      END LOOP;
-
-      -- Valida os dados:
-      if (qt_horizontal_1 + qt_horizontal_2 + qt_horizontal_3 + qt_horizontal_4 + qt_horizontal_5) <> 20 then
-        Raise Exception 'Quantidade de bolas é diferente de 20';
-      END IF;
-
-      if tp_op = 'UPDATE' then
-        Delete from lotomania.lotomania_horizontal where concurso = old.concurso;
-      END IF;
-
-      -- Insere na tabela
-      Insert into lotomania.lotomania_resultado_horizontal (concurso, hrz_1, hrz_2, hrz_3, hrz_4, hrz_5) values
-        (new.concurso, qt_horizontal_1, qt_horizontal_2, qt_horizontal_3, qt_horizontal_4, qt_horizontal_5);
-      
-
-
-      execute lotomania.fn_lotomania_resultado_grupo_com_4(concurso, resultado_num);
-
-      
-
-      execute lotomania.fn_lotomania_resultado_metade_horizontal(concurso, resultado_num);
-      execute lotomania.fn_lotomania_resultado_metade_vertical(concurso, resultado_num);
-
-      execute lotomania.fn_lotomania_resultado_triangular(concurso, resultado_num);
-      execute lotomania.fn_lotomania_resultado_losangular(concurso, resultado_num);
-      execute lotomania.fn_lotomania_resultado_estrelar(concurso, resultado_num);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      execute lotomania.fn_lotomania_resultado_triangular(new.concurso, resultado_num);
+      execute lotomania.fn_lotomania_resultado_losangular(new.concurso, resultado_num);
+      execute lotomania.fn_lotomania_resultado_estrelar(new.concurso, resultado_num);
 
       Return new;
     RETURN New;
   END CASE;
 END $$;
+
+-- Cria o trigger
+CREATE TRIGGER tg_lotomania_resultado_num
+AFTER INSERT OR DELETE OR UPDATE
+  ON lotomania.lotomania_resultado_num
+FOR EACH ROW
+EXECUTE PROCEDURE lotomania.fn_lotomania_resultado_num();
+
+
+
+
+drop function if exists lotomania.fn_lotomania_resultado_bolas(numeric, numeric[]);
+create function lotomania.fn_lotomania_resultado_bolas(concurso_novo numeric, resultado_num numeric[]) returns VOID
+  LANGUAGE plpgsql
+  as $$
+  DECLARE
+    resultado_bolas numeric[21];
+
+    -- Cada vez que uma bola é sorteada, incrementa esta variável.
+    contador_bolas numeric;
+
+    -- Pra percorrer o arranjo resultado_num
+    indice_num numeric;
+
+    -- Serve pra armazenar o sql dinâmicamente.
+    strSqlInsertBolas CHARACTER VARYING;
+  BEGIN
+    strSqlInsertBolas := '';
+    contador_bolas := 0;
+
+    for indice_num in 0..99 LOOP
+
+        if resultado_num[indice_num] = 1 THEN
+          contador_bolas := contador_bolas + 1;
+          if contador_bolas > 20 THEN
+            Raise EXCEPTION 'Erro, há mais de 20 bolas sorteadas';
+          end if;
+          strSqlInsertBolas := strSqlInsertBolas || ', ' || indice_num;
+        END IF;
+      END LOOP;
+
+      -- Executa a inserção na tabela.
+      execute 'Insert into lotomania.lotomania_resultado_bolas (concurso, b_1, b_2, b_3, b_4, b_5,'
+        || 'b_6, b_7, b_8, b_9, b_10, b_11, b_12, b_13, b_14, b_15, b_16, b_17, b_18, b_19, b_20) values ('
+        || concurso_novo || strSqlInsertBolas || ')';
+    END;
+  $$;
+
 
 drop function if exists lotomania.fn_lotomania_resultado_grupo_com_4(numeric, numeric[]);
 create function lotomania.fn_lotomania_resultado_grupo_com_4(concurso_novo numeric, resultado_num numeric[]) returns VOID
@@ -362,6 +321,10 @@ begin
   qt_grp_24 := resultado_num[87] + resultado_num[88] + resultado_num[97] + resultado_num[98];
   qt_grp_25 := resultado_num[89] + resultado_num[90] + resultado_num[99] + resultado_num[0];
 
+  Raise Notice '%,%,%,%,%,%,%,%,%,%,%,%,%,%,%,%,%,%,%,%,%,%,%,%,%,', qt_grp_1, qt_grp_2, qt_grp_3, qt_grp_4, qt_grp_5, qt_grp_6, qt_grp_7, qt_grp_8,
+    qt_grp_9, qt_grp_10, qt_grp_11, qt_grp_12, qt_grp_13, qt_grp_14, qt_grp_15, qt_grp_16, qt_grp_17,
+    qt_grp_18, qt_grp_19, qt_grp_20, qt_grp_21, qt_grp_22, qt_grp_23, qt_grp_24, qt_grp_25;
+
   Insert into lotomania.lotomania_resultado_grupo_com_4 (concurso, grp_1, grp_2, grp_3, grp_4, grp_5,
                                                          grp_6, grp_7, grp_8, grp_9, grp_10, grp_11,
                                                          grp_12, grp_13, grp_14, grp_15, grp_16, grp_17,
@@ -381,6 +344,46 @@ AS $$
 DECLARE
 begin
 
+end $$;
+
+drop function if exists lotomania.fn_lotomania_resultado_horizontal(numeric, numeric[]);
+create function lotomania.fn_lotomania_resultado_horizontal(concurso_novo numeric, resultado_num numeric[]) returns VOID
+ LANGUAGE plpgsql
+AS $$
+DECLARE
+  qt_hrz_1 numeric default 0;
+  qt_hrz_2 numeric default 0;
+  qt_hrz_3 numeric default 0;
+  qt_hrz_4 numeric default 0;
+  qt_hrz_5 numeric default 0;
+begin
+  qt_hrz_1 := resultado_num[1] + resultado_num[2] + resultado_num[3] + resultado_num[4] + resultado_num[5] + 
+              resultado_num[6] + resultado_num[7] + resultado_num[8] + resultado_num[9] + resultado_num[10] + 
+              resultado_num[11] + resultado_num[12] + resultado_num[13] + resultado_num[14] + resultado_num[15] + 
+              resultado_num[16] + resultado_num[17] + resultado_num[18] + resultado_num[19] + resultado_num[20];
+
+  qt_hrz_2 := resultado_num[21] + resultado_num[22] + resultado_num[23] + resultado_num[24] + resultado_num[25] + 
+              resultado_num[26] + resultado_num[27] + resultado_num[28] + resultado_num[29] + resultado_num[30] + 
+              resultado_num[31] + resultado_num[32] + resultado_num[33] + resultado_num[34] + resultado_num[35] + 
+              resultado_num[36] + resultado_num[37] + resultado_num[38] + resultado_num[39] + resultado_num[40];
+
+  qt_hrz_3 := resultado_num[41] + resultado_num[42] + resultado_num[43] + resultado_num[44] + resultado_num[45] + 
+              resultado_num[46] + resultado_num[47] + resultado_num[48] + resultado_num[49] + resultado_num[50] + 
+              resultado_num[51] + resultado_num[52] + resultado_num[53] + resultado_num[54] + resultado_num[55] + 
+              resultado_num[56] + resultado_num[57] + resultado_num[58] + resultado_num[59] + resultado_num[60];
+
+  qt_hrz_4 := resultado_num[61] + resultado_num[62] + resultado_num[63] + resultado_num[64] + resultado_num[65] + 
+              resultado_num[66] + resultado_num[67] + resultado_num[68] + resultado_num[69] + resultado_num[70] + 
+              resultado_num[71] + resultado_num[72] + resultado_num[73] + resultado_num[74] + resultado_num[75] + 
+              resultado_num[76] + resultado_num[77] + resultado_num[78] + resultado_num[79] + resultado_num[80];
+
+  qt_hrz_5 := resultado_num[81] +  resultado_num[82] +  resultado_num[83] +  resultado_num[84] +  resultado_num[85] +
+              resultado_num[86] +  resultado_num[87] +  resultado_num[88] +  resultado_num[89] +  resultado_num[90] +
+              resultado_num[91] +  resultado_num[92] +  resultado_num[93] +  resultado_num[94] +  resultado_num[95] +
+              resultado_num[96] +  resultado_num[97] +  resultado_num[98] +  resultado_num[99] +  resultado_num[0];
+
+  Insert into lotomania.lotomania_resultado_horizontal(concurso, hrz_1, hrz_2, hrz_3, hrz_4, hrz_5) values(
+    concurso_novo, qt_hrz_1, qt_hrz_2, qt_hrz_3, qt_hrz_4, qt_hrz_5);
 end $$;
 
 drop function if exists lotomania.fn_lotomania_resultado_vertical(numeric, numeric[]);
@@ -417,7 +420,8 @@ begin
   qt_vrt_5 := resultado_num[9] +  resultado_num[19] +  resultado_num[29] +  resultado_num[39] +  resultado_num[49] +
               resultado_num[59] +  resultado_num[69] +  resultado_num[79] +  resultado_num[89] +  resultado_num[99] +
               resultado_num[10] +  resultado_num[20] +  resultado_num[30] +  resultado_num[40] +  resultado_num[50] +
-              resultado_num[60] +  resultado_num[70] +  resultado_num[80] +  resultado_num[90] +  resultado_num[100];
+              resultado_num[60] +  resultado_num[70] +  resultado_num[80] +  resultado_num[90] +  resultado_num[0];
+  Raise notice '%,%,%,%,%', qt_vrt_1, qt_vrt_2, qt_vrt_3, qt_vrt_4, qt_vrt_5;
 
   Insert into lotomania.lotomania_resultado_vertical(concurso, vrt_1, vrt_2, vrt_3, vrt_4, vrt_5) VALUES (
     concurso_novo, qt_vrt_1, qt_vrt_2, qt_vrt_3, qt_vrt_4, qt_vrt_5);
@@ -456,7 +460,7 @@ begin
     resultado_num[86] +  resultado_num[87] +  resultado_num[88] +  resultado_num[89] +  resultado_num[90] +
     resultado_num[96] +  resultado_num[97] +  resultado_num[98] +  resultado_num[99] +  resultado_num[0];
 
-  Insert into lotomania_resultado_metade_horizontal (concurso, met_hrz_1, met_hrz_2) values (
+  Insert into lotomania.lotomania_resultado_metade_horizontal (concurso, met_hrz_1, met_hrz_2) values (
     concurso_novo, qt_met_hrz_1, qt_met_hrz_2);
 
 end $$;
@@ -466,8 +470,8 @@ create function lotomania.fn_lotomania_resultado_metade_vertical(concurso_novo n
  LANGUAGE plpgsql
 AS $$
 DECLARE
-  qt_met_vrt_1 numeric not null;
-  qt_met_vrt_2 numeric not null;
+  qt_met_vrt_1 numeric default 0;
+  qt_met_vrt_2 numeric default 0;
 begin
   qt_met_vrt_1 :=
     resultado_num[1] +  resultado_num[2] +  resultado_num[3] +  resultado_num[4] +  resultado_num[5] +
@@ -664,6 +668,27 @@ begin
   Insert into lotomania.lotomania_resultado_estrelar(concurso, st_1, st_2, st_3, st_4, st_5, st_6, st_7, st_8) values
     (concurso_novo, qt_st_1, qt_st_2, qt_st_3, qt_st_4, qt_st_5, qt_st_6, qt_st_7, qt_st_8);
 end $$;
+
+
+Insert into lotomania.lotomania_resultado_num (concurso, data, num_0, num_1, num_2, num_3, num_4, num_5,
+                                               num_6, num_7, num_8, num_9, num_10, num_11, num_12, num_13,
+                                               num_14, num_15, num_16, num_17, num_18, num_19, num_20,
+                                               num_21, num_22, num_23, num_24, num_25, num_26, num_27,
+                                               num_28, num_29, num_30, num_31, num_32, num_33, num_34,
+                                               num_35, num_36, num_37, num_38, num_39, num_40, num_41,
+                                               num_42, num_43, num_44, num_45, num_46, num_47, num_48,
+                                               num_49, num_50, num_51, num_52, num_53, num_54, num_55,
+                                               num_56, num_57, num_58, num_59, num_60, num_61, num_62,
+                                               num_63, num_64, num_65, num_66, num_67, num_68, num_69,
+                                               num_70, num_71, num_72, num_73, num_74, num_75, num_76,
+                                               num_77, num_78, num_79, num_80, num_81, num_82, num_83,
+                                               num_84, num_85, num_86, num_87, num_88, num_89, num_90,
+                                               num_91, num_92, num_93, num_94, num_95, num_96, num_97,
+                                               num_98, num_99) VALUES
+  (3, '2017-08-29', 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+  )
 
 
 
