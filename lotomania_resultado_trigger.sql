@@ -30,8 +30,29 @@ DECLARE
 BEGIN
 
   CASE
+    when TG_OP = 'DELETE'
+    THEN
+      Delete from lotomania.lotomania_resultado_bolas where concurso = old.concurso;
+      Delete from lotomania.lotomania_resultado_par_impar where concurso = old.concurso;
+
+      Delete from lotomania.lotomania_resultado_grupo_com_4 where concurso = old.concurso;
+
+      Delete from lotomania.lotomania_resultado_horizontal where concurso = old.concurso;
+      Delete from lotomania.lotomania_resultado_vertical where concurso = old.concurso;
+
+      Delete from lotomania.lotomania_resultado_metade_horizontal where concurso = old.concurso;
+      Delete from lotomania.lotomania_resultado_metade_vertical where concurso = old.concurso;
+
+      Delete from lotomania.lotomania_resultado_quadrante where concurso = old.concurso;
+
+      Delete from lotomania.lotomania_resultado_triangular where concurso = old.concurso;
+      Delete from lotomania.lotomania_resultado_losangular where concurso = old.concurso;
+      Delete from lotomania.lotomania_resultado_estrelar where concurso = old.concurso;
+
+      return old;
+
   -- Aqui, praticamente o código é o mesmo iremos implementar, a lógica após.
-    WHEN TG_OP = 'INSERT' OR TG_OP = 'UPDATE' or TG_OP = 'DELETE'
+    WHEN TG_OP = 'INSERT' OR TG_OP = 'UPDATE'
     THEN
       resultado_num[0] := new.num_0;
       resultado_num[1] := new.num_1;
@@ -175,6 +196,8 @@ BEGIN
 
       execute lotomania.fn_lotomania_resultado_metade_horizontal(new.concurso, resultado_num);
       execute lotomania.fn_lotomania_resultado_metade_vertical(new.concurso, resultado_num);
+
+      execute lotomania.fn_lotomania_resultado_quadrante(new.concurso, resultado_num);
 
       execute lotomania.fn_lotomania_resultado_triangular(new.concurso, resultado_num);
       execute lotomania.fn_lotomania_resultado_losangular(new.concurso, resultado_num);

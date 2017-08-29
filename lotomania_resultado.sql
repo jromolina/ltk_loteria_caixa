@@ -279,6 +279,7 @@ create table lotomania.lotomania_resultado_grupo_com_4(
     grp_11 + grp_12 + grp_13 + grp_14 + grp_15 + grp_16 + grp_17 + grp_18 + grp_19 + grp_20 +
     grp_21 + grp_22 + grp_23 + grp_24 + grp_25 = 20),
   CONSTRAINT lotomania_resultado_grupo_com_4_fk FOREIGN KEY (concurso) REFERENCES lotomania.lotomania_resultado_num (concurso)
+  on update cascade on delete cascade
 );
 comment on table lotomania.lotomania_resultado_grupo_com_4 IS
 'Armazena a quantidade de bolas que foram sorteados em cada grupo';
