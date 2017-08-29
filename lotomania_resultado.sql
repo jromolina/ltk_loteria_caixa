@@ -222,6 +222,7 @@ create table lotomania.lotomania_resultado_vertical(
   on update cascade on delete cascade
 );
 
+drop table if exists lotomania.lotomania_resultado_metade_horizontal;
 create table lotomania.lotomania_resultado_metade_horizontal(
   concurso numeric not null,
   met_hrz_1 numeric not null,
@@ -232,6 +233,7 @@ create table lotomania.lotomania_resultado_metade_horizontal(
   on update cascade on delete cascade
 );
 
+drop table if exists lotomania.lotomania_resultado_metade_vertical;
 create table lotomania.lotomania_resultado_metade_vertical(
   concurso numeric not null,
   met_vrt_1 numeric not null,
@@ -242,6 +244,7 @@ create table lotomania.lotomania_resultado_metade_vertical(
   on update cascade on delete cascade
 );
 
+drop table if exists lotomania.lotomania_resultado_grupo_com_4;
 create table lotomania.lotomania_resultado_grupo_com_4(
   concurso numeric not null,
   grp_1                    NUMERIC DEFAULT 0 check (grp_1 in (0, 4)),
@@ -274,12 +277,13 @@ create table lotomania.lotomania_resultado_grupo_com_4(
   CONSTRAINT lotomania_resultado_grupo_com_4_chk CHECK ((grp_1 + grp_2  + grp_3  + grp_4  + grp_5  + grp_6  + grp_7  + grp_8  + grp_9  + grp_10 +
     grp_11 + grp_12 + grp_13 + grp_14 + grp_15 + grp_16 + grp_17 + grp_18 + grp_19 + grp_20 +
     grp_21 + grp_22 + grp_23 + grp_24 + grp_25) = 20),
-  CONSTRAINT lotomania_resultado_grupo_com_4_fk FOREIGN KEY (concurso) REFERENCES lotomania_resultado_num (concurso)
+  CONSTRAINT lotomania_resultado_grupo_com_4_fk FOREIGN KEY (concurso) REFERENCES lotomania.lotomania_resultado_num (concurso)
 );
 comment on table lotomania.lotomania_resultado_grupo_com_4 IS
 'Armazena a quantidade de bolas que foram sorteados em cada grupo';
 
 
+drop table if exists lotomania.lotomania_resultado_quadrante;
 create table lotomania.lotomania_resultado_quadrante(
   concurso numeric not null,
   qd_1 numeric not null,
@@ -292,6 +296,7 @@ create table lotomania.lotomania_resultado_quadrante(
   on update cascade on delete cascade
 );
 
+drop table if exists lotomania.lotomania_resultado_triangular;
 create table lotomania.lotomania_resultado_triangular(
   concurso numeric not null,
   tr_1 numeric not null,
@@ -304,18 +309,22 @@ create table lotomania.lotomania_resultado_triangular(
   on update cascade on delete cascade
 );
 
+drop table if EXISTS lotomania.lotomania_resultado_losangular;
 create table lotomania.lotomania_resultado_losangular(
   concurso numeric not null,
   ls_1 numeric not null,
   ls_2 numeric not null,
   ls_3 numeric not null,
   ls_4 numeric not null,
+  ls_5 numeric not null,
+  ls_6 numeric not null,
 
-  CONSTRAINT lotomania_resultado_losangular_chk check((ls_1 + ls_2 + ls_3 + ls_4) = 20),
+  CONSTRAINT lotomania_resultado_losangular_chk check((ls_1 + ls_2 + ls_3 + ls_4 + ls_5 + ls_6) = 20),
   CONSTRAINT lotomania_resultado_losangular_fk FOREIGN KEY (concurso) REFERENCES lotomania.lotomania_resultado_num(concurso)
   on update cascade on delete cascade
 );
 
+drop table if exists lotomania.lotomania_resultado_estrelar;
 create table lotomania.lotomania_resultado_estrelar(
   concurso numeric not null,
   st_1 numeric not null,
