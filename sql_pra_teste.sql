@@ -1,3 +1,7 @@
+Select num_83, count(*) as qt_vezes from lotomania.lotomania_resultado_num
+  where num_83 = 1
+GROUP BY num_83;
+
 
 Delete from lotomania.lotomania_resultado_num;
 
@@ -15,3 +19,11 @@ copy lotomania.lotomania_resultado_num(concurso, data, num_0, num_1, num_2, num_
                                        num_88, num_89, num_90, num_91, num_92, num_93, num_94, num_95, num_96, num_97,
                                        num_98, num_99) FROM '/tmp/lotomania.csv'
 with (FORMAT CSV, DELIMITER ';', HEADER true);
+
+
+insert into lotofacil.lotofacil_resultado_num(concurso, data, num_1, num_2, num_3, num_4, num_5, num_6, num_7,
+                                              num_8, num_9, num_10, num_11, num_12, num_13, num_14, num_15, num_16,
+                                              num_17, num_18, num_19, num_20, num_21, num_22, num_23, num_24, num_25)
+VALUES (3, now(), 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+Delete from lotofacil.lotofacil_resultado_num where concurso = 1;

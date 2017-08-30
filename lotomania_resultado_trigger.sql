@@ -215,9 +215,6 @@ AFTER INSERT OR DELETE OR UPDATE
 FOR EACH ROW
 EXECUTE PROCEDURE lotomania.fn_lotomania_resultado_num();
 
-
-
-
 drop function if exists lotomania.fn_lotomania_resultado_bolas(numeric, numeric[]);
 create function lotomania.fn_lotomania_resultado_bolas(concurso_novo numeric, resultado_num numeric[]) returns VOID
   LANGUAGE plpgsql
