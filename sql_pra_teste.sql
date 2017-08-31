@@ -21,9 +21,28 @@ copy lotomania.lotomania_resultado_num(concurso, data, num_0, num_1, num_2, num_
 with (FORMAT CSV, DELIMITER ';', HEADER true);
 
 
-insert into lotofacil.lotofacil_resultado_num(concurso, data, num_1, num_2, num_3, num_4, num_5, num_6, num_7,
-                                              num_8, num_9, num_10, num_11, num_12, num_13, num_14, num_15, num_16,
-                                              num_17, num_18, num_19, num_20, num_21, num_22, num_23, num_24, num_25)
-VALUES (3, now(), 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+DELETE  from lotofacil.lotofacil_resultado_num;
+copy lotofacil.lotofacil_resultado_num (concurso, data, num_1, num_2, num_3, num_4, num_5, num_6, num_7,
+                                        num_8, num_9, num_10, num_11, num_12, num_13, num_14, num_15, num_16,
+                                        num_17, num_18, num_19, num_20, num_21, num_22, num_23, num_24, num_25)  from
+'/tmp/lotofacil_resultado.csv' with (format csv, DELIMITER ';', HEADER  true);
 
-Delete from lotofacil.lotofacil_resultado_num where concurso = 1;
+Select * from lotofacil.lotofacil_resultado_bolas ltf_bolas,
+  (Select ltf_hrz.concurso, hrz_id, vrt_id, dg_id
+  from
+    lotofacil.lotofacil_resultado_horizontal ltf_hrz,
+    lotofacil.lotofacil_resultado_vertical ltf_vrt,
+    lotofacil.lotofacil_resultado_diagonal ltf_dg
+  where
+    ltf_hrz.concurso = ltf_vrt.concurso AND
+      ltf_hrz.concurso = ltf_dg.concurso AND
+      ltf_vrt.concurso = ltf_dg.concurso and
+    ltf_hrz.hrz_id = ltf_vrt.vrt_id and
+        ltf_hrz.hrz_id = ltf_dg.dg_id and
+        ltf_vrt.vrt_id = ltf_dg.dg_id
+
+  ) ltf_consulta
+where ltf_consulta.concurso = ltf_bolas.concurso;
+
+
+

@@ -142,8 +142,30 @@ create function lotofacil.fn_lotofacil_resultado_par_impar(concurso_novo numeric
   LANGUAGE plpgsql
   as $$
   DECLARE
+    qt_pares numeric default 0;
+    qt_impares numeric default 0;
+    indice numeric default 0;
   BEGIN
+    qt_pares := 0;
+    qt_impares := 0;
 
+    for indice in 1..25 LOOP
+      if resultado_num[indice] = 1 then
+        if indice % 2 = 0 THEN
+          qt_pares := qt_pares + 1;
+        ELSE
+          qt_impares := qt_impares + 1;
+        END IF;
+      end if;
+    END LOOP;
+
+    Raise Notice '%, %', qt_pares, qt_impares;
+
+    if qt_pares + qt_impares <> 15 THEN
+      raise EXCEPTION 'Quantidade de pares e impares é diferente de 15';
+    END IF;
+
+    Insert into lotofacil.lotofacil_resultado_par_impar (concurso, par, impar) values (concurso_novo, qt_pares, qt_impares);
   END;$$;
 
 
@@ -170,7 +192,8 @@ begin
 
   Insert into lotofacil.lotofacil_resultado_externo_interno (concurso, ext_id)
     Select concurso_novo, ext_id from lotofacil.lotofacil_externo_interno_id
-  where externo = qt_externo and interno = qt_interno;
+  where externo = qt_externo and interno = qt_interno
+  and ext_qt = 15;
 
 end $$;
 
@@ -195,7 +218,8 @@ begin
 
   Insert into lotofacil.lotofacil_resultado_horizontal (concurso, hrz_id)
     Select concurso_novo, hrz_id from lotofacil.lotofacil_horizontal_id
-  where hrz_1 = qt_hrz_1 and hrz_2 = qt_hrz_2 and hrz_3 = qt_hrz_3 and hrz_4 = qt_hrz_4 and hrz_5 = qt_hrz_5;
+  where hrz_1 = qt_hrz_1 and hrz_2 = qt_hrz_2 and hrz_3 = qt_hrz_3 and hrz_4 = qt_hrz_4 and hrz_5 = qt_hrz_5
+  and hrz_qt = 15;
 
 end $$;
 
@@ -220,7 +244,8 @@ begin
 
   Insert into lotofacil.lotofacil_resultado_vertical (concurso, vrt_id)
     Select concurso_novo, vrt_id from lotofacil.lotofacil_vertical_id
-  where vrt_1 = qt_vrt_1 and vrt_2 = qt_vrt_2 and vrt_3 = qt_vrt_3 and vrt_4 = qt_vrt_4 and vrt_5 = qt_vrt_5;
+  where vrt_1 = qt_vrt_1 and vrt_2 = qt_vrt_2 and vrt_3 = qt_vrt_3 and vrt_4 = qt_vrt_4 and vrt_5 = qt_vrt_5
+  and vrt_qt = 15;
 
 end $$;
 
@@ -243,7 +268,8 @@ begin
 
   Insert into lotofacil.lotofacil_resultado_diagonal (concurso, dg_id)
     Select concurso_novo, dg_id from lotofacil.lotofacil_diagonal_id
-  where dg_1 = qt_dg_1 and dg_2 = qt_dg_2 and dg_3 = qt_dg_3 and dg_4 = qt_dg_4 and dg_5 = qt_dg_5;
+  where dg_1 = qt_dg_1 and dg_2 = qt_dg_2 and dg_3 = qt_dg_3 and dg_4 = qt_dg_4 and dg_5 = qt_dg_5
+  and dg_qt = 15;
 
 end $$;
 
@@ -266,68 +292,8 @@ begin
 
   Insert into lotofacil.lotofacil_resultado_cruzeta (concurso, crz_id)
     Select concurso_novo, crz_id from lotofacil.lotofacil_cruzeta_id
-  where crz_1 = qt_crz_1 and crz_2 = qt_crz_2 and crz_3 = qt_crz_3 and crz_4 = qt_crz_4 and crz_5 = qt_crz_5;
+  where crz_1 = qt_crz_1 and crz_2 = qt_crz_2 and crz_3 = qt_crz_3 and crz_4 = qt_crz_4 and crz_5 = qt_crz_5
+  and crz_qt = 15;
 
 end $$;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-drop function if exists lotofacil.fn_lotofacil_resultado_vertical(numeric, numeric[]);
-create function lotofacil.fn_lotofacil_resultado_vertical(concurso_novo numeric, resultado_num numeric[]) returns VOID
- LANGUAGE plpgsql
-AS $$
-DECLARE
-  qt_vrt_1 numeric default 0;
-  qt_vrt_2 numeric default 0;
-  qt_vrt_3 numeric default 0;
-  qt_vrt_4 numeric default 0;
-  qt_vrt_5 numeric default 0;
-begin
-  qt_vrt_1 := resultado_num[1] + resultado_num[11] + resultado_num[21] + resultado_num[31] + resultado_num[41] +
-              resultado_num[51] + resultado_num[61] + resultado_num[71] + resultado_num[81] + resultado_num[91] +
-              resultado_num[2] + resultado_num[12] + resultado_num[22] + resultado_num[32] + resultado_num[42] +
-              resultado_num[52] + resultado_num[62] + resultado_num[72] + resultado_num[82] + resultado_num[92];
-
-  qt_vrt_2 := resultado_num[3] + resultado_num[13] + resultado_num[23] + resultado_num[33] + resultado_num[43] +
-              resultado_num[53] + resultado_num[63] + resultado_num[73] + resultado_num[83] + resultado_num[93] +
-              resultado_num[4] + resultado_num[14] + resultado_num[24] + resultado_num[34] + resultado_num[44] +
-              resultado_num[54] + resultado_num[64] + resultado_num[74] + resultado_num[84] + resultado_num[94];
-
-  qt_vrt_3 := resultado_num[5] + resultado_num[15] + resultado_num[25] + resultado_num[35] + resultado_num[45] +
-              resultado_num[55] + resultado_num[65] + resultado_num[75] + resultado_num[85] + resultado_num[95] +
-              resultado_num[6] + resultado_num[16] + resultado_num[26] + resultado_num[36] + resultado_num[46] +
-              resultado_num[56] + resultado_num[66] + resultado_num[76] + resultado_num[86] + resultado_num[96];
-
-  qt_vrt_4 := resultado_num[7] + resultado_num[17] + resultado_num[27] + resultado_num[37] + resultado_num[47] +
-              resultado_num[57] + resultado_num[67] + resultado_num[77] + resultado_num[87] + resultado_num[97] +
-              resultado_num[8] + resultado_num[18] + resultado_num[28] + resultado_num[38] + resultado_num[48] +
-              resultado_num[58] + resultado_num[68] + resultado_num[78] + resultado_num[88] + resultado_num[98];
-
-  qt_vrt_5 := resultado_num[9] +  resultado_num[19] +  resultado_num[29] +  resultado_num[39] +  resultado_num[49] +
-              resultado_num[59] +  resultado_num[69] +  resultado_num[79] +  resultado_num[89] +  resultado_num[99] +
-              resultado_num[10] +  resultado_num[20] +  resultado_num[30] +  resultado_num[40] +  resultado_num[50] +
-              resultado_num[60] +  resultado_num[70] +  resultado_num[80] +  resultado_num[90] +  resultado_num[0];
-  Raise notice '%,%,%,%,%', qt_vrt_1, qt_vrt_2, qt_vrt_3, qt_vrt_4, qt_vrt_5;
-
-  Insert into lotofacil.lotofacil_resultado_vertical(concurso, vrt_1, vrt_2, vrt_3, vrt_4, vrt_5) VALUES (
-    concurso_novo, qt_vrt_1, qt_vrt_2, qt_vrt_3, qt_vrt_4, qt_vrt_5);
-
-end $$;
