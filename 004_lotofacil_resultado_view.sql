@@ -1,4 +1,20 @@
 /**
+  Apaga toda as tabelas, que serão usadas no view.
+ */
+drop view if exists lotofacil.v_lotofacil_resultado_horizontal;
+drop view if exists lotofacil.v_lotofacil_resultado_horizontal_detalhado;
+drop view if exists lotofacil.v_lotofacil_resultado_vertical;
+drop view if exists lotofacil.v_lotofacil_resultado_vertical_detalhado;
+drop view if exists lotofacil.v_lotofacil_resultado_diagonal;
+drop view if exists lotofacil.v_lotofacil_resultado_diagonal_detalhado;
+drop view if exists lotofacil.v_lotofacil_resultado_cruzeta;
+drop view if exists lotofacil.v_lotofacil_resultado_cruzeta_detalhado;
+drop view if exists lotofacil.v_lotofacil_resultado_externo_interno;
+drop view if exists lotofacil.v_lotofacil_resultado_externo_interno_detalhado;
+drop view if exists lotofacil.v_lotofacil_resultado_par_impar;
+drop view if exists lotofacil.v_lotofacil_resultado_par_impar_detalhado;
+
+/**
   Horizontal.
  */
 
@@ -75,28 +91,44 @@ create view lotofacil.v_lotofacil_resultado_cruzeta_detalhado AS
   group by ltf_res.crz_id, crz_1, crz_2, crz_3, crz_4, crz_5
   order by qt_vezes desc;
 
-
+/**
+  Externo x Interno
+ */
 drop view if exists lotofacil.v_lotofacil_resultado_externo_interno;
 create view lotofacil.v_lotofacil_resultado_externo_interno AS
-  Select ltf_res.ext_id, count(*) qt_vezes FROM
+  Select ltf_res.ext_id, ltf_res.int_id, count(*) qt_vezes FROM
     lotofacil.lotofacil_resultado_externo_interno ltf_res
-  group by ltf_res.ext_id
+  group by ltf_res.ext_id, ltf_res.int_id
   order by qt_vezes desc;
 
 drop view if exists lotofacil.v_lotofacil_resultado_externo_interno_detalhado;
 create view lotofacil.v_lotofacil_resultado_externo_interno_detalhado AS
-  Select ltf_res.ext_id, externo, interno, count(*) qt_vezes FROM
+  Select ltf_res.ext_id, ltf_res.int_id, externo, interno, count(*) qt_vezes FROM
     lotofacil.lotofacil_resultado_externo_interno ltf_res, lotofacil.lotofacil_externo_interno_id ltf_id
     where ltf_res.ext_id = ltf_id.ext_id
-  group by ltf_res.ext_id, externo, interno
+  group by ltf_res.ext_id, ltf_res.int_id, externo, interno
   order by qt_vezes desc;
 
+/**
+  Par x Impar.
+ */
 drop view if exists lotofacil.v_lotofacil_resultado_par_impar;
 create view lotofacil.v_lotofacil_resultado_par_impar AS
-  Select ltf_res.par, ltf_res.impar, count(*) qt_vezes FROM
+  Select ltf_res.par_impar_id, count(*) qt_vezes FROM
     lotofacil.lotofacil_resultado_par_impar ltf_res
-  group by ltf_res.par, ltf_res.impar
+  group by ltf_res.par_impar_id
   order by qt_vezes desc;
+
+/**
+  Coluna b1
+ */
+Drop view if exists lotofacil.v_lotofacil_resultado_b1;
+create view lotofacil.v_lotofacil_resultado_b1 AS
+  Select ltf_res.b1_id, count(*) as qt_vezes from lotofacil.lotofacil_resultado_b1 ltf_res, lotofacil.lotofacil_b1_id ltf_id
+  where ltf_res.b1_id = ltf_id.b1_id
+  group by ltf_res.b1_id
+
+
 
 
 

@@ -3,6 +3,32 @@
   Eu já havia criado as tabelas, mas agora, está otimizada.
 
  */
+
+/**
+  Apaga as views, pois ela depende das tabelas deste arquivo.
+ */
+drop view if exists lotofacil.v_lotofacil_resultado_horizontal;
+drop view if exists lotofacil.v_lotofacil_resultado_horizontal_detalhado;
+drop view if exists lotofacil.v_lotofacil_resultado_vertical;
+drop view if exists lotofacil.v_lotofacil_resultado_vertical_detalhado;
+drop view if exists lotofacil.v_lotofacil_resultado_diagonal;
+drop view if exists lotofacil.v_lotofacil_resultado_diagonal_detalhado;
+drop view if exists lotofacil.v_lotofacil_resultado_cruzeta;
+drop view if exists lotofacil.v_lotofacil_resultado_cruzeta_detalhado;
+drop view if exists lotofacil.v_lotofacil_resultado_externo_interno;
+drop view if exists lotofacil.v_lotofacil_resultado_externo_interno_detalhado;
+drop view if exists lotofacil.v_lotofacil_resultado_par_impar;
+drop view if exists lotofacil.v_lotofacil_resultado_par_impar_detalhado;
+
+/**
+  Apaga as tabelas de colunas b.
+ */
+drop table if exists lotofacil.lotofacil_resultado_b1;
+drop table if exists lotofacil.lotofacil_resultado_b1_b15;
+drop table if exists lotofacil.lotofacil_resultado_b1_b8_b15;
+drop table if exists lotofacil.lotofacil_resultado_b1_b4_b8_b12_b15;
+
+
 drop TABLE if exists lotofacil.lotofacil_resultado_bolas;
 drop table if exists lotofacil.lotofacil_resultado_par_impar;
 drop table if exists lotofacil.lotofacil_resultado_externo_interno;
@@ -11,6 +37,11 @@ drop table if exists lotofacil.lotofacil_resultado_vertical;
 drop table if exists lotofacil.lotofacil_resultado_diagonal;
 drop table if exists lotofacil.lotofacil_resultado_cruzeta;
 drop table if exists lotofacil.lotofacil_resultado_num;
+
+/**
+  Esta é a tabela, onde os dados serão inseridos na tabela, as demais tabelas
+  serão inseridos conforme os dados são inseridas aqui.
+ */
 CREATE TABLE lotofacil.lotofacil_resultado_num (
   concurso         NUMERIC      NOT NULL,
   data             DATE         NOT NULL,
@@ -96,25 +127,22 @@ create table lotofacil.lotofacil_resultado_bolas(
 );
 
 drop table if exists lotofacil.lotofacil_resultado_par_impar;
-create TABLE lotofacil.lotofacil_resultado_par_impar(
+create table lotofacil.lotofacil_resultado_par_impar(
   concurso numeric not null,
-  par numeric not null,
-  impar numeric not null,
-
-  CONSTRAINT lotofacil_resultado_par_impar_chk check((par + impar) = 15),
+  par_impar_id numeric not null,
   CONSTRAINT lotofacil_resultado_par_impar_fk FOREIGN KEY (concurso) REFERENCES lotofacil.lotofacil_resultado_num(concurso)
-  on UPDATE cascade on DELETE cascade
+  on update cascade on delete cascade,
+  CONSTRAINT lotofacil_resultado_par_impar_pk PRIMARY KEY (concurso, par_impar_id)
 );
 
 drop table if exists lotofacil.lotofacil_resultado_externo_interno;
-create TABLE lotofacil.lotofacil_resultado_externo_interno(
+create table lotofacil.lotofacil_resultado_externo_interno(
   concurso numeric not null,
-  externo numeric not null,
-  interno numeric not null,
-
-  CONSTRAINT lotofacil_resultado_externo_interno_chk check((externo + interno) = 15),
+  ext_id numeric not null,
+  int_id numeric not null,
   CONSTRAINT lotofacil_resultado_externo_interno_fk FOREIGN KEY (concurso) REFERENCES lotofacil.lotofacil_resultado_num(concurso)
-  on UPDATE cascade on DELETE cascade
+  on update cascade on delete cascade,
+  CONSTRAINT lotofacil_resultado_externo_interno_pk PRIMARY KEY (concurso, ext_id, int_id)
 );
 
 drop table if exists lotofacil.lotofacil_resultado_horizontal;
@@ -123,7 +151,7 @@ create table lotofacil.lotofacil_resultado_horizontal(
   hrz_id numeric not null,
   CONSTRAINT lotofacil_resultado_horizontal_fk FOREIGN KEY (concurso) REFERENCES lotofacil.lotofacil_resultado_num(concurso)
   on update cascade on delete cascade,
-  CONSTRAINT lotofacil_resultado_horizontal_unk UNIQUE (concurso, hrz_id)
+  CONSTRAINT lotofacil_resultado_horizontal_pk PRIMARY KEY (concurso, hrz_id)
 );
 
 drop table if exists lotofacil.lotofacil_resultado_vertical;
@@ -132,7 +160,7 @@ create table lotofacil.lotofacil_resultado_vertical(
   vrt_id numeric not null,
   CONSTRAINT lotofacil_resultado_vertical_fk FOREIGN KEY (concurso) REFERENCES lotofacil.lotofacil_resultado_num(concurso)
   on update cascade on delete cascade,
-  CONSTRAINT lotofacil_resultado_vertical_unk UNIQUE (concurso, vrt_id)
+  CONSTRAINT lotofacil_resultado_vertical_pk PRIMARY KEY (concurso, vrt_id)
 );
 
 drop table if exists lotofacil.lotofacil_resultado_diagonal;
@@ -141,7 +169,7 @@ create table lotofacil.lotofacil_resultado_diagonal(
   dg_id numeric not null,
   CONSTRAINT lotofacil_resultado_diagonal_fk FOREIGN KEY (concurso) REFERENCES lotofacil.lotofacil_resultado_num(concurso)
   on update cascade on delete cascade,
-  CONSTRAINT lotofacil_resultado_diagonal_unk UNIQUE (concurso, dg_id)
+  CONSTRAINT lotofacil_resultado_diagonal_pk PRIMARY KEY (concurso, dg_id)
 );
 
 drop table if exists lotofacil.lotofacil_resultado_cruzeta;
@@ -150,17 +178,49 @@ create table lotofacil.lotofacil_resultado_cruzeta(
   crz_id numeric not null,
   CONSTRAINT lotofacil_resultado_cruzeta_fk FOREIGN KEY (concurso) REFERENCES lotofacil.lotofacil_resultado_num(concurso)
   on update cascade on delete cascade,
-  CONSTRAINT lotofacil_resultado_cruzeta_unk UNIQUE (concurso, crz_id)
+  CONSTRAINT lotofacil_resultado_cruzeta_pk PRIMARY KEY (concurso, crz_id)
 );
 
-drop table if exists lotofacil.lotofacil_resultado_externo_interno;
-create table lotofacil.lotofacil_resultado_externo_interno(
+
+drop table if exists lotofacil.lotofacil_resultado_b1;
+create table lotofacil.lotofacil_resultado_b1(
   concurso numeric not null,
-  ext_id numeric not null,
-  CONSTRAINT lotofacil_resultado_externo_interno_fk FOREIGN KEY (concurso) REFERENCES lotofacil.lotofacil_resultado_num(concurso)
+  b1_id numeric not null,
+  CONSTRAINT lotofacil_resultado_b1_fk FOREIGN KEY (concurso) REFERENCES lotofacil.lotofacil_resultado_num(concurso)
   on update cascade on delete cascade,
-  CONSTRAINT lotofacil_resultado_externo_interno_unk UNIQUE (concurso, ext_id)
+  CONSTRAINT lotofacil_resultado_b1_pk PRIMARY KEY (concurso, b1_id)
 );
+
+drop table if exists lotofacil.lotofacil_resultado_b1_b15;
+create table lotofacil.lotofacil_resultado_b1_b15(
+  concurso numeric not null,
+  b1_b15_id numeric not null,
+  CONSTRAINT lotofacil_resultado_b1_b15_fk FOREIGN KEY (concurso) REFERENCES lotofacil.lotofacil_resultado_num(concurso)
+  on update cascade on delete cascade,
+  CONSTRAINT lotofacil_resultado_b1_b15_pk PRIMARY KEY (concurso, b1_b15_id)
+);
+
+
+drop table if exists lotofacil.lotofacil_resultado_b1_b8_b15;
+create table lotofacil.lotofacil_resultado_b1_b8_b15(
+  concurso numeric not null,
+  b1_b8_b15_id numeric not null,
+  CONSTRAINT lotofacil_resultado_b1_b8_b15_fk FOREIGN KEY (concurso) REFERENCES lotofacil.lotofacil_resultado_num(concurso)
+  on update cascade on delete cascade,
+  CONSTRAINT lotofacil_resultado_b1_b8_b15_pk PRIMARY KEY (concurso, b1_b8_b15_id)
+);
+
+drop table if exists lotofacil.lotofacil_resultado_b1_b4_b8_b12_b15;
+create table lotofacil.lotofacil_resultado_b1_b4_b8_b12_b15(
+  concurso numeric not null,
+  b1_b4_b8_b12_b15_id numeric not null,
+  CONSTRAINT lotofacil_resultado_b1_b4_b8_b12_b15_fk FOREIGN KEY (concurso) REFERENCES lotofacil.lotofacil_resultado_num(concurso)
+  on update cascade on delete cascade,
+  CONSTRAINT lotofacil_resultado_b1_b4_b8_b12_b15_pk PRIMARY KEY (concurso, b1_b4_b8_b12_b15_id)
+);
+
+
+
 
 
 

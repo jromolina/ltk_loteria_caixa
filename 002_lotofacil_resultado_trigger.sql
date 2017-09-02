@@ -13,15 +13,6 @@ DECLARE
   -- Armazena as 25 bolas, colocamos 26 pois, irei pegar de 1 a 25, ao invés de 0, pra indicar 1.
   resultado_num numeric[26];
 
-
-  qt_pares numeric;
-  qt_impares numeric;
-
-  sqlInsertResultadoBolas character varying;
-
-  uA numeric ;
-
-
 BEGIN
 
   CASE
@@ -77,13 +68,13 @@ BEGIN
         Delete from lotofacil.lotofacil_resultado_cruzeta where concurso = old.concurso;
       END IF;
 
-      execute lotofacil.fn_lotofacil_resultado_bolas(new.concurso, resultado_num);
-      execute lotofacil.fn_lotofacil_resultado_par_impar(new.concurso, resultado_num);
-      execute lotofacil.fn_lotofacil_resultado_externo_interno(new.concurso, resultado_num);
+      EXECUTE lotofacil.fn_lotofacil_resultado_bolas(new.concurso, resultado_num);
+      EXECUTE lotofacil.fn_lotofacil_resultado_par_impar(new.concurso, resultado_num);
+      EXECUTE lotofacil.fn_lotofacil_resultado_externo_interno(new.concurso, resultado_num);
 
-      execute lotofacil.fn_lotofacil_resultado_horizontal(new.concurso, resultado_num);
-      execute lotofacil.fn_lotofacil_resultado_vertical(new.concurso, resultado_num);
-      execute lotofacil.fn_lotofacil_resultado_diagonal(new.concurso, resultado_num);
+      EXECUTE lotofacil.fn_lotofacil_resultado_horizontal(new.concurso, resultado_num);
+      EXECUTE lotofacil.fn_lotofacil_resultado_vertical(new.concurso, resultado_num);
+      EXECUTE lotofacil.fn_lotofacil_resultado_diagonal(new.concurso, resultado_num);
 
       EXECUTE lotofacil.fn_lotofacil_resultado_cruzeta(new.concurso, resultado_num);
 
@@ -109,6 +100,9 @@ create function lotofacil.fn_lotofacil_resultado_bolas(concurso_novo numeric, re
   DECLARE
     -- Cada vez que uma bola é sorteada, incrementa esta variável.
     contador_bolas numeric;
+    
+    -- Serve para armazenar as bolas, para poder inserir dentro das tabelas
+    resultado_bolas numeric[16];
 
     -- Pra percorrer o arranjo resultado_num
     indice_num numeric;
@@ -127,6 +121,7 @@ create function lotofacil.fn_lotofacil_resultado_bolas(concurso_novo numeric, re
             Raise EXCEPTION 'Erro, há mais de 15 bolas sorteadas';
           end if;
           strSqlInsertBolas := strSqlInsertBolas || ', ' || indice_num;
+          resultado_bolas[contador_bolas] := indice_num;
         END IF;
       END LOOP;
 
@@ -134,8 +129,109 @@ create function lotofacil.fn_lotofacil_resultado_bolas(concurso_novo numeric, re
       execute 'Insert into lotofacil.lotofacil_resultado_bolas (concurso, b_1, b_2, b_3, b_4, b_5,'
         || 'b_6, b_7, b_8, b_9, b_10, b_11, b_12, b_13, b_14, b_15) values ('
         || concurso_novo || strSqlInsertBolas || ')';
+
+      execute lotofacil.fn_lotofacil_resultado_b1_ate_b15(concurso_novo, resultado_bolas);
+
+      execute lotofacil.fn_lotofacil_resultado_grupos(concurso_novo, resultado_bolas);
+
     END;
   $$;
+
+drop function if exists lotofacil.fn_lotofacil_resultado_b1_ate_b15(numeric, numeric[]);
+create function lotofacil.fn_lotofacil_resultado_b1_ate_b15(concurso_novo numeric, resultado_bolas numeric[]) returns void
+  LANGUAGE plpgsql
+  as $$
+  DECLARE
+  BEGIN
+    Insert into lotofacil.lotofacil_resultado_b1 (concurso, b1_id)
+      Select concurso_novo, b1_id from lotofacil.lotofacil_b1_id
+    where b1 = resultado_bolas[1];
+
+    Insert into lotofacil.lotofacil_resultado_b1_b15 (concurso, b1_b15_id)
+      Select concurso_novo, b1_b15_id from lotofacil.lotofacil_b1_b15_id
+    where b1 = resultado_bolas[1] and
+          b15 = resultado_bolas[15];
+
+    Insert into lotofacil.lotofacil_resultado_b1_b8_b15 (concurso, b1_b8_b15_id)
+      Select concurso_novo, b1_b8_b15_id from lotofacil.lotofacil_b1_b8_b15_id
+    where b1 = resultado_bolas[1] and b8 = resultado_bolas[8] and b15 = resultado_bolas[15];
+
+    Insert into lotofacil.lotofacil_resultado_b1_b4_b8_b12_b15 (concurso, b1_b4_b8_b12_b15_id)
+      Select concurso_novo, b1_b4_b8_b12_b15_id from lotofacil.lotofacil_b1_b4_b8_b12_b15_id
+    where b1 = resultado_bolas[1] and
+          b4 = resultado_bolas[4] and
+          b8 = resultado_bolas[8] and
+          b12 = resultado_bolas[12] and
+          b15 = resultado_bolas[15];
+
+  END;
+  $$;
+
+drop function if exists lotofacil.fn_lotofacil_resultado_grupos(numeric, numeric[]);
+create function lotofacil.fn_lotofacil_resultado_grupos(concurso_novo numeric, resultado_bolas numeric[])
+  returns void
+  LANGUAGE plpgsql
+  as $$
+  DECLARE
+    uA numeric default 0;
+    uB numeric default 0;
+    uC numeric default 0;
+    uD numeric default 0;
+    uE numeric default 0;
+  BEGIN
+
+    for uA in 1..15 LOOP
+      for uB in (uA + 1)..15 loop
+        Update lotofacil.lotofacil_grupo_2bolas set res_qt = res_qt + 1
+          where bola1 = resultado_bolas[uA] AND
+            bola2 = resultado_bolas[uB];
+      END LOOP;
+    END LOOP;
+
+    for uA in 1..15 LOOP
+      for uB in (uA + 1)..15 loop
+        for uC in (uB + 1)..15 loop
+          Update lotofacil.lotofacil_grupo_3bolas set res_qt = res_qt + 1
+            where bola1 = resultado_bolas[uA] AND
+            bola2 = resultado_bolas[uB] and
+              bola3 = resultado_bolas[uC];
+        END LOOP ;
+      END LOOP;
+    END LOOP;
+
+    for uA in 1..15 LOOP
+      for uB in (uA + 1)..15 loop
+        for uC in (uB + 1)..15 loop
+          for uD in (uC + 1)..15 loop
+            Update lotofacil.lotofacil_grupo_4bolas set res_qt = res_qt + 1
+              where bola1 = resultado_bolas[uA] AND
+              bola2 = resultado_bolas[uB] and
+                bola3 = resultado_bolas[uC] AND
+                bola4 = resultado_bolas[uD];
+          END LOOP;
+        END LOOP ;
+      END LOOP;
+    END LOOP;
+
+
+    for uA in 1..15 LOOP
+      for uB in (uA + 1)..15 loop
+        for uC in (uB + 1)..15 loop
+          for uD in (uC + 1)..15 loop
+            for uE in (uD + 1)..15 loop
+              Update lotofacil.lotofacil_grupo_5bolas set res_qt = res_qt + 1
+                where bola1 = resultado_bolas[uA] AND
+                bola2 = resultado_bolas[uB] and
+                  bola3 = resultado_bolas[uC] AND
+                  bola4 = resultado_bolas[uD] AND
+                  bola5 = resultado_bolas[uE];
+            END LOOP;
+          END LOOP;
+        END LOOP ;
+      END LOOP;
+    END LOOP;
+  END;$$;
+
 
 drop function if exists lotofacil.fn_lotofacil_resultado_par_impar(numeric, numeric[]);
 create function lotofacil.fn_lotofacil_resultado_par_impar(concurso_novo numeric, resultado_num numeric[]) returns void
@@ -146,26 +242,22 @@ create function lotofacil.fn_lotofacil_resultado_par_impar(concurso_novo numeric
     qt_impares numeric default 0;
     indice numeric default 0;
   BEGIN
-    qt_pares := 0;
-    qt_impares := 0;
+    qt_pares := resultado_num[2] + resultado_num[4] + resultado_num[6] + resultado_num[8] +
+                resultado_num[10] + resultado_num[12] + resultado_num[14] + resultado_num[16] + resultado_num[18] +
+                resultado_num[20] + resultado_num[22] + resultado_num[24];
+    qt_impares := resultado_num[1] + resultado_num[3] + resultado_num[5] + resultado_num[7] + resultado_num[9] +
+                 resultado_num[11] + resultado_num[13] + resultado_num[15] + resultado_num[17] + resultado_num[19] +
+                 resultado_num[21] + resultado_num[23] + resultado_num[25];
 
-    for indice in 1..25 LOOP
-      if resultado_num[indice] = 1 then
-        if indice % 2 = 0 THEN
-          qt_pares := qt_pares + 1;
-        ELSE
-          qt_impares := qt_impares + 1;
-        END IF;
-      end if;
-    END LOOP;
-
-    Raise Notice '%, %', qt_pares, qt_impares;
+    Raise Notice 'Par: %, Impar: %', qt_pares, qt_impares;
 
     if qt_pares + qt_impares <> 15 THEN
       raise EXCEPTION 'Quantidade de pares e impares é diferente de 15';
     END IF;
 
-    Insert into lotofacil.lotofacil_resultado_par_impar (concurso, par, impar) values (concurso_novo, qt_pares, qt_impares);
+    Insert into lotofacil.lotofacil_resultado_par_impar (concurso, par_impar_id)
+      Select concurso_novo, par_impar_id from lotofacil.lotofacil_par_impar_id
+    where par = qt_pares and impar = qt_impares;
   END;$$;
 
 
@@ -190,10 +282,10 @@ begin
   qt_interno := qt_interno + resultado_num[12] + resultado_num[13] + resultado_num[14];
   qt_interno := qt_interno + resultado_num[17] + resultado_num[18] + resultado_num[19];
 
-  Insert into lotofacil.lotofacil_resultado_externo_interno (concurso, ext_id)
-    Select concurso_novo, ext_id from lotofacil.lotofacil_externo_interno_id
+  Insert into lotofacil.lotofacil_resultado_externo_interno (concurso, ext_id, int_id)
+    Select concurso_novo, ext_id, int_id from lotofacil.lotofacil_externo_interno_id
   where externo = qt_externo and interno = qt_interno
-  and ext_qt = 15;
+  and ext_int_qt = 15;
 
 end $$;
 
@@ -294,6 +386,5 @@ begin
     Select concurso_novo, crz_id from lotofacil.lotofacil_cruzeta_id
   where crz_1 = qt_crz_1 and crz_2 = qt_crz_2 and crz_3 = qt_crz_3 and crz_4 = qt_crz_4 and crz_5 = qt_crz_5
   and crz_qt = 15;
-
 end $$;
 

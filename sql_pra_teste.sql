@@ -22,6 +22,13 @@ with (FORMAT CSV, DELIMITER ';', HEADER true);
 
 
 DELETE  from lotofacil.lotofacil_resultado_num;
+
+Update lotofacil.lotofacil_grupo_2bolas set res_qt = 0;
+Update lotofacil.lotofacil_grupo_3bolas set res_qt = 0;
+Update lotofacil.lotofacil_grupo_4bolas set res_qt = 0;
+
+
+
 copy lotofacil.lotofacil_resultado_num (concurso, data, num_1, num_2, num_3, num_4, num_5, num_6, num_7,
                                         num_8, num_9, num_10, num_11, num_12, num_13, num_14, num_15, num_16,
                                         num_17, num_18, num_19, num_20, num_21, num_22, num_23, num_24, num_25)  from
