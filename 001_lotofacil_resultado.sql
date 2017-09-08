@@ -9,16 +9,47 @@
  */
 drop view if exists lotofacil.v_lotofacil_resultado_horizontal;
 drop view if exists lotofacil.v_lotofacil_resultado_horizontal_detalhado;
+
 drop view if exists lotofacil.v_lotofacil_resultado_vertical;
 drop view if exists lotofacil.v_lotofacil_resultado_vertical_detalhado;
+
 drop view if exists lotofacil.v_lotofacil_resultado_diagonal;
 drop view if exists lotofacil.v_lotofacil_resultado_diagonal_detalhado;
+
 drop view if exists lotofacil.v_lotofacil_resultado_cruzeta;
 drop view if exists lotofacil.v_lotofacil_resultado_cruzeta_detalhado;
+
 drop view if exists lotofacil.v_lotofacil_resultado_externo_interno;
 drop view if exists lotofacil.v_lotofacil_resultado_externo_interno_detalhado;
+
+drop view if exists lotofacil.v_lotofacil_resultado_quarteto;
+drop view if exists lotofacil.v_lotofacil_resultado_quarteto_detalhado;
+
+
+
 drop view if exists lotofacil.v_lotofacil_resultado_par_impar;
 drop view if exists lotofacil.v_lotofacil_resultado_par_impar_detalhado;
+
+drop view if exists lotofacil.v_lotofacil_resultado_b1;
+drop view if exists lotofacil.v_lotofacil_resultado_b1_b15;
+drop view if exists lotofacil.v_lotofacil_resultado_b1_b8_b15;
+drop view if exists lotofacil.v_lotofacil_resultado_b1_b4_b8_b12_b15;
+
+drop view if exists lotofacil.v_lotofacil_resultado_grupo2bolas;
+drop view if exists lotofacil.v_lotofacil_resultado_grupo3bolas;
+drop view if exists lotofacil.v_lotofacil_resultado_grupo4bolas;
+drop view if exists lotofacil.v_lotofacil_resultado_grupo5bolas;
+
+drop view if exists lotofacil.v_lotofacil_grupo_2bolas;
+drop view if exists lotofacil.v_lotofacil_grupo_3bolas;
+drop view if exists lotofacil.v_lotofacil_grupo_4bolas;
+drop view if exists lotofacil.v_lotofacil_grupo_5bolas;
+
+drop table if exists lotofacil.lotofacil_resultado_grupo_2bolas;
+drop table if exists lotofacil.lotofacil_resultado_grupo_3bolas;
+drop table if exists lotofacil.lotofacil_resultado_grupo_4bolas;
+drop table if exists lotofacil.lotofacil_resultado_grupo_5bolas;
+
 
 /**
   Apaga as tabelas de colunas b.
@@ -36,13 +67,16 @@ drop table if exists lotofacil.lotofacil_resultado_horizontal;
 drop table if exists lotofacil.lotofacil_resultado_vertical;
 drop table if exists lotofacil.lotofacil_resultado_diagonal;
 drop table if exists lotofacil.lotofacil_resultado_cruzeta;
+drop table if exists lotofacil.lotofacil_resultado_quarteto;
 drop table if exists lotofacil.lotofacil_resultado_num;
 
 /**
   Esta é a tabela, onde os dados serão inseridos na tabela, as demais tabelas
   serão inseridos conforme os dados são inseridas aqui.
  */
+drop table if exists lotofacil.lotofacil_resultado_num;
 CREATE TABLE lotofacil.lotofacil_resultado_num (
+  ltf_id          numeric default null,
   concurso         NUMERIC      NOT NULL,
   data             DATE         NOT NULL,
 
@@ -77,7 +111,9 @@ CREATE TABLE lotofacil.lotofacil_resultado_num (
     num_11 + num_12 + num_13 + num_14 + num_15 + num_16 + num_17 + num_18 + num_19 + num_20 +
     num_21 + num_22 + num_23 + num_24 + num_25 ) = 15),
 
-  CONSTRAINT lotofacil_resultado_pk PRIMARY KEY (concurso)
+  CONSTRAINT lotofacil_resultado_pk PRIMARY KEY (concurso),
+
+  constraint lotofacil_resultado_fk FOREIGN KEY (ltf_id) references lotofacil.lotofacil_num(ltf_id)
 );
 comment on table lotofacil.lotofacil_resultado_num is
 'Esta é a tabela inicial, que são armazenados os resultados da lotofacil, '
@@ -85,8 +121,16 @@ comment on table lotofacil.lotofacil_resultado_num is
 'o campo terá o valor 1, se a bola foi sorteada, 0 (zero) caso contrário.'
 'Tem que ser sorteado 20 números, senão a restrição de verificação não irá deixar inserir o registro.';
 
+-- alter table lotofacil.lotofacil_resultado_num alter column ltf_id set default null;
+-- ALTER TABLE lotofacil.lotofacil_resultado_bolas ALTER COLUMN ltf_id DROP NOT NULL;
+alter table lotofacil.lotofacil_resultado_num drop CONSTRAINT lotofacil_resultado_fk;
+
+
+
+
 drop TABLE if exists lotofacil.lotofacil_resultado_bolas;
 create table lotofacil.lotofacil_resultado_bolas(
+  ltf_id numeric default null,
   concurso numeric not null,
 
   b_1                    NUMERIC DEFAULT 0 ,
@@ -181,7 +225,25 @@ create table lotofacil.lotofacil_resultado_cruzeta(
   CONSTRAINT lotofacil_resultado_cruzeta_pk PRIMARY KEY (concurso, crz_id)
 );
 
+/**
+  Quarteto:
+    São 4 bolas, por grupo, o último grupo tem 5.
+ */
 
+drop table if exists lotofacil.lotofacil_resultado_quarteto;
+create table lotofacil.lotofacil_resultado_quarteto(
+  concurso numeric not null,
+  qrt_id numeric not null,
+  CONSTRAINT lotofacil_resultado_quarteto_fk FOREIGN KEY (concurso) REFERENCES lotofacil.lotofacil_resultado_num(concurso)
+  on update cascade on delete cascade,
+  CONSTRAINT lotofacil_resultado_quarteto_pk PRIMARY KEY (concurso, qrt_id)
+);
+
+
+/**
+  Coluna b1, indica a coluna com a menor bola.
+  As bolas são disposta em ordem crescente.
+ */
 drop table if exists lotofacil.lotofacil_resultado_b1;
 create table lotofacil.lotofacil_resultado_b1(
   concurso numeric not null,
@@ -191,6 +253,11 @@ create table lotofacil.lotofacil_resultado_b1(
   CONSTRAINT lotofacil_resultado_b1_pk PRIMARY KEY (concurso, b1_id)
 );
 
+/**
+  Coluna b1, indica a coluna com a menor bola.
+  Coluna b15, indica a última coluna com a maior bola do concurso.
+  As bolas são disposta em ordem crescente.
+ */
 drop table if exists lotofacil.lotofacil_resultado_b1_b15;
 create table lotofacil.lotofacil_resultado_b1_b15(
   concurso numeric not null,
@@ -218,6 +285,55 @@ create table lotofacil.lotofacil_resultado_b1_b4_b8_b12_b15(
   on update cascade on delete cascade,
   CONSTRAINT lotofacil_resultado_b1_b4_b8_b12_b15_pk PRIMARY KEY (concurso, b1_b4_b8_b12_b15_id)
 );
+
+/**
+  Tabelas pra analisar os grupos.
+ */
+
+drop table if exists lotofacil.lotofacil_resultado_grupo_2bolas;
+create table lotofacil.lotofacil_resultado_grupo_2bolas(
+  concurso numeric not null,
+  grp_id numeric not null,
+  CONSTRAINT lotofacil_resultado_grupo_2bolas_pk PRIMARY KEY (concurso, grp_id),
+  CONSTRAINT lotofacil_resultado_grupo_2bolas_unk UNIQUE (concurso, grp_id)
+);
+
+drop table if exists lotofacil.lotofacil_resultado_grupo_3bolas;
+create table lotofacil.lotofacil_resultado_grupo_3bolas(
+  concurso numeric not null,
+  grp_id numeric not null,
+  CONSTRAINT lotofacil_resultado_grupo_3bolas_pk PRIMARY KEY (concurso, grp_id),
+  CONSTRAINT lotofacil_resultado_grupo_3bolas_unk UNIQUE (concurso, grp_id)
+);
+
+drop table if exists lotofacil.lotofacil_resultado_grupo_4bolas;
+create table lotofacil.lotofacil_resultado_grupo_4bolas(
+  concurso numeric not null,
+  grp_id numeric not null,
+  CONSTRAINT lotofacil_resultado_grupo_4bolas_pk PRIMARY KEY (concurso, grp_id),
+  CONSTRAINT lotofacil_resultado_grupo_4bolas_unk UNIQUE (concurso, grp_id)
+);
+
+drop table if exists lotofacil.lotofacil_resultado_grupo_5bolas;
+create table lotofacil.lotofacil_resultado_grupo_5bolas(
+  concurso numeric not null,
+  grp_id numeric not null,
+  CONSTRAINT lotofacil_resultado_grupo_5bolas_pk PRIMARY KEY (concurso, grp_id),
+  CONSTRAINT lotofacil_resultado_grupo_5bolas_unk UNIQUE (concurso, grp_id)
+);
+
+drop table if exists lotofacil.lotofacil_resultado_primo;
+create table lotofacil.lotofacil_resultado_primo(
+  concurso numeric not null,
+  prm_id numeric not null,
+  CONSTRAINT lotofacil_resultado_primo_pk PRIMARY KEY (concurso, prm_id),
+  CONSTRAINT lotofacil_resultado_primo_unk UNIQUE (concurso, prm_id)
+);
+
+/**
+  Novos, repetidos, ainda nao saiu, deixou de sair.
+ *
+
 
 
 
