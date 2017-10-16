@@ -28,6 +28,7 @@ BEGIN
         Delete from lotofacil.lotofacil_resultado_diagonal where concurso = old.concurso;
         Delete from lotofacil.lotofacil_resultado_cruzeta where concurso = old.concurso;
         Delete from lotofacil.lotofacil_resultado_quarteto where concurso = old.concurso;
+        Delete from lotofacil.lotofacil_resultado_trio where concurso = old.concurso;
 
         /**
           Deleta as tabelas referente a grupos.
@@ -36,6 +37,11 @@ BEGIN
         Delete from lotofacil.lotofacil_resultado_grupo_3bolas where concurso = old.concurso;
         Delete from lotofacil.lotofacil_resultado_grupo_4bolas where concurso = old.concurso;
         Delete from lotofacil.lotofacil_resultado_grupo_5bolas where concurso = old.concurso;
+        Delete from lotofacil.lotofacil_resultado_grupo_6bolas where concurso = old.concurso;
+        Delete from lotofacil.lotofacil_resultado_grupo_7bolas where concurso = old.concurso;
+        Delete from lotofacil.lotofacil_resultado_grupo_8bolas where concurso = old.concurso;
+        Delete from lotofacil.lotofacil_resultado_grupo_9bolas where concurso = old.concurso;
+        Delete from lotofacil.lotofacil_resultado_grupo_10bolas where concurso = old.concurso;
 
       return old;
 
@@ -78,6 +84,7 @@ BEGIN
         Delete from lotofacil.lotofacil_resultado_vertical where concurso = old.concurso;
         Delete from lotofacil.lotofacil_resultado_diagonal where concurso = old.concurso;
         Delete from lotofacil.lotofacil_resultado_cruzeta where concurso = old.concurso;
+        Delete from lotofacil.lotofacil_resultado_trio where concurso = old.concurso;
         
         /**
           Deleta as tabelas referente a grupos.
@@ -86,6 +93,12 @@ BEGIN
         Delete from lotofacil.lotofacil_resultado_grupo_3bolas where concurso = old.concurso;
         Delete from lotofacil.lotofacil_resultado_grupo_4bolas where concurso = old.concurso;
         Delete from lotofacil.lotofacil_resultado_grupo_5bolas where concurso = old.concurso;
+        Delete from lotofacil.lotofacil_resultado_grupo_6bolas where concurso = old.concurso;
+        Delete from lotofacil.lotofacil_resultado_grupo_7bolas where concurso = old.concurso;
+        Delete from lotofacil.lotofacil_resultado_grupo_8bolas where concurso = old.concurso;
+        Delete from lotofacil.lotofacil_resultado_grupo_9bolas where concurso = old.concurso;
+        Delete from lotofacil.lotofacil_resultado_grupo_10bolas where concurso = old.concurso;
+
       END IF;
 
       EXECUTE lotofacil.fn_lotofacil_resultado_bolas(new.concurso, resultado_num);
@@ -99,6 +112,7 @@ BEGIN
 
       EXECUTE lotofacil.fn_lotofacil_resultado_cruzeta(new.concurso, resultado_num);
       EXECUTE lotofacil.fn_lotofacil_resultado_quarteto(new.concurso, resultado_num);
+      EXECUTE lotofacil.fn_lotofacil_resultado_trio(new.concurso, resultado_num);
 
       Raise Notice 'Concurso: %', new.concurso;
 
@@ -116,7 +130,9 @@ FOR EACH ROW
 EXECUTE PROCEDURE lotofacil.fn_lotofacil_resultado_num();
 
 
-
+/*
+  Esta função é chamada, quando qualquer registro for inserido na tabela lotofacil.lotofacil_num.
+ */
 drop function if exists lotofacil.fn_lotofacil_resultado_bolas(numeric, numeric[]);
 create function lotofacil.fn_lotofacil_resultado_bolas(concurso_novo numeric, resultado_num numeric[]) returns VOID
   LANGUAGE plpgsql
@@ -198,16 +214,27 @@ create function lotofacil.fn_lotofacil_resultado_grupos(concurso_novo numeric, r
   as $$
   DECLARE
     uA numeric default 0;
-    uB numeric default 0;
-    uC numeric default 0;
-    uD numeric default 0;
+    uB numeric default 0; -- 2 colunas
+    uC numeric default 0; -- 3 bolas
+    uD numeric default 0; -- 4 bolas
     uE numeric default 0;
+    uF numeric default 0;
+    uG numeric default 0;
+    uH numeric default 0;
+    uI numeric default 0;
   BEGIN
+
+    for uA in 1..15 LOOP
+        Insert into lotofacil.lotofacil_resultado_grupo_2bolas(concurso, grp_id)
+          Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_1_bolas
+            where bola1 = resultado_bolas[uA];
+    END LOOP;
+
 
     for uA in 1..15 LOOP
       for uB in (uA + 1)..15 loop
         Insert into lotofacil.lotofacil_resultado_grupo_2bolas(concurso, grp_id)
-          Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_2bolas
+          Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_2_bolas
             where bola1 = resultado_bolas[uA] AND
               bola2 = resultado_bolas[uB];
       END LOOP;
@@ -217,7 +244,7 @@ create function lotofacil.fn_lotofacil_resultado_grupos(concurso_novo numeric, r
       for uB in (uA + 1)..15 loop
         for uC in (uB + 1)..15 loop
           Insert into lotofacil.lotofacil_resultado_grupo_3bolas(concurso, grp_id)
-            Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_3bolas
+            Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_3_bolas
             where bola1 = resultado_bolas[uA] AND
               bola2 = resultado_bolas[uB] AND
               bola3 = resultado_bolas[uC];
@@ -230,7 +257,7 @@ create function lotofacil.fn_lotofacil_resultado_grupos(concurso_novo numeric, r
         for uC in (uB + 1)..15 loop
           for uD in (uC + 1)..15 loop
             Insert into lotofacil.lotofacil_resultado_grupo_4bolas(concurso, grp_id)
-            Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_4bolas
+            Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_4_bolas
             where bola1 = resultado_bolas[uA] AND
               bola2 = resultado_bolas[uB] AND
               bola3 = resultado_bolas[uC] and
@@ -248,7 +275,7 @@ create function lotofacil.fn_lotofacil_resultado_grupos(concurso_novo numeric, r
           for uD in (uC + 1)..15 loop
             for uE in (uD + 1)..15 loop
               Insert into lotofacil.lotofacil_resultado_grupo_5bolas(concurso, grp_id)
-              Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_5bolas
+              Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_5_bolas
               where bola1 = resultado_bolas[uA] AND
                 bola2 = resultado_bolas[uB] AND
                 bola3 = resultado_bolas[uC] and
@@ -259,6 +286,142 @@ create function lotofacil.fn_lotofacil_resultado_grupos(concurso_novo numeric, r
         END LOOP ;
       END LOOP;
     END LOOP;
+
+    for uA in 1..15 LOOP
+      for uB in (uA + 1)..15 loop
+        for uC in (uB + 1)..15 loop
+          for uD in (uC + 1)..15 loop
+            for uE in (uD + 1)..15 loop
+              for uF in (uE + 1)..15 loop
+                Insert into lotofacil.lotofacil_resultado_grupo_6_bolas(concurso, grp_id)
+                Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_6_bolas
+                where bola1 = resultado_bolas[uA] AND
+                  bola2 = resultado_bolas[uB] AND
+                  bola3 = resultado_bolas[uC] and
+                  bola4 = resultado_bolas[uD] AND
+                  bola5 = resultado_bolas[uE] AND
+                  bola6 = resultado_bolas[uF];
+              END LOOP;
+            END LOOP;
+          END LOOP;
+        END LOOP ;
+      END LOOP;
+    END LOOP;
+
+    for uA in 1..15 LOOP
+      for uB in (uA + 1)..15 loop
+        for uC in (uB + 1)..15 loop
+          for uD in (uC + 1)..15 loop
+            for uE in (uD + 1)..15 loop
+              for uF in (uE + 1)..15 loop
+                for uG in (uF + 1)..15 loop
+                  Insert into lotofacil.lotofacil_resultado_grupo_7_bolas(concurso, grp_id)
+                  Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_7_bolas
+                  where bola1 = resultado_bolas[uA] AND
+                    bola2 = resultado_bolas[uB] AND
+                    bola3 = resultado_bolas[uC] and
+                    bola4 = resultado_bolas[uD] AND
+                    bola5 = resultado_bolas[uE] AND
+                    bola6 = resultado_bolas[uF] AND
+                    bola7 = resultado_bolas[uG];
+                end loop;
+              END LOOP;
+            END LOOP;
+          END LOOP;
+        END LOOP ;
+      END LOOP;
+    END LOOP;
+
+    for uA in 1..15 LOOP
+      for uB in (uA + 1)..15 loop
+        for uC in (uB + 1)..15 loop
+          for uD in (uC + 1)..15 loop
+            for uE in (uD + 1)..15 loop
+              for uF in (uE + 1)..15 loop
+                for uG in (uF + 1)..15 loop
+                  for uH in (uG + 1)..15 loop
+                    Insert into lotofacil.lotofacil_resultado_grupo_8_bolas(concurso, grp_id)
+                    Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_8_bolas
+                    where bola1 = resultado_bolas[uA] AND
+                      bola2 = resultado_bolas[uB] AND
+                      bola3 = resultado_bolas[uC] and
+                      bola4 = resultado_bolas[uD] AND
+                      bola5 = resultado_bolas[uE] AND
+                      bola6 = resultado_bolas[uF] AND
+                      bola7 = resultado_bolas[uG] AND
+                      bola8 = resultado_bolas[uH];
+                  end loop;
+                end loop;
+              END LOOP;
+            END LOOP;
+          END LOOP;
+        END LOOP ;
+      END LOOP;
+    END LOOP;
+
+    for uA in 1..15 LOOP
+      for uB in (uA + 1)..15 loop
+        for uC in (uB + 1)..15 loop
+          for uD in (uC + 1)..15 loop
+            for uE in (uD + 1)..15 loop
+              for uF in (uE + 1)..15 loop
+                for uG in (uF + 1)..15 loop
+                  for uH in (uG + 1)..15 loop
+                    for uI in (uH + 1)..15 loop
+                      Insert into lotofacil.lotofacil_resultado_grupo_9_bolas(concurso, grp_id)
+                      Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_9_bolas
+                      where bola1 = resultado_bolas[uA] AND
+                        bola2 = resultado_bolas[uB] AND
+                        bola3 = resultado_bolas[uC] and
+                        bola4 = resultado_bolas[uD] AND
+                        bola5 = resultado_bolas[uE] AND
+                        bola6 = resultado_bolas[uF] AND
+                        bola7 = resultado_bolas[uG] AND
+                        bola8 = resultado_bolas[uH] AND
+                        bola9 = resultado_bolas[uI];
+                    end loop;
+                  end loop;
+                end loop;
+              END LOOP;
+            END LOOP;
+          END LOOP;
+        END LOOP ;
+      END LOOP;
+    END LOOP;
+
+    for uA in 1..15 LOOP
+      for uB in (uA + 1)..15 loop
+        for uC in (uB + 1)..15 loop
+          for uD in (uC + 1)..15 loop
+            for uE in (uD + 1)..15 loop
+              for uF in (uE + 1)..15 loop
+                for uG in (uF + 1)..15 loop
+                  for uH in (uG + 1)..15 loop
+                    for uI in (uH + 1)..15 loop
+                      for uJ in (uI + 1)..15 loop
+                        Insert into lotofacil.lotofacil_resultado_grupo_10_bolas(concurso, grp_id)
+                        Select concurso_novo, grp_id from lotofacil.lotofacil_id_grupo_10_bolas
+                        where bola1 = resultado_bolas[uA] AND
+                          bola2 = resultado_bolas[uB] AND
+                          bola3 = resultado_bolas[uC] and
+                          bola4 = resultado_bolas[uD] AND
+                          bola5 = resultado_bolas[uE] AND
+                          bola6 = resultado_bolas[uF] AND
+                          bola7 = resultado_bolas[uG] AND
+                          bola8 = resultado_bolas[uH] AND
+                          bola9 = resultado_bolas[uI] AND
+                          bola10 = resultado_bolas[uJ];
+                      end loop;
+                    end loop;
+                  end loop;
+                end loop;
+              END LOOP;
+            END LOOP;
+          END LOOP;
+        END LOOP ;
+      END LOOP;
+    END LOOP;
+
   END;$$;
 
 
@@ -310,8 +473,8 @@ begin
   qt_interno := qt_interno + resultado_num[12] + resultado_num[13] + resultado_num[14];
   qt_interno := qt_interno + resultado_num[17] + resultado_num[18] + resultado_num[19];
 
-  Insert into lotofacil.lotofacil_resultado_externo_interno (concurso, ext_id, int_id)
-    Select concurso_novo, ext_id, int_id from lotofacil.lotofacil_id_externo_interno
+  Insert into lotofacil.lotofacil_resultado_externo_interno (concurso, ext_int_id)
+    Select concurso_novo, ext_int_id from lotofacil.lotofacil_id_externo_interno
   where externo = qt_externo and interno = qt_interno
   and ext_int_qt = 15;
 
@@ -455,6 +618,52 @@ begin
         qrt_qt = 15;
 end $$;
 
+drop function if exists lotofacil.fn_lotofacil_resultado_trio(numeric, numeric[]);
+create function lotofacil.fn_lotofacil_resultado_trio(concurso_novo numeric, resultado_num numeric[]) returns void
+  LANGUAGE plpgsql
+as $$
+  DECLARE
+    trio_1 numeric default 0;
+    trio_2 numeric default 0;
+    trio_3 numeric default 0;
+    trio_4 numeric default 0;
+    trio_5 numeric default 0;
+    trio_6 numeric default 0;
+    trio_7 numeric default 0;
+    trio_8 numeric default 0;
+    trio_soma numeric default 0;
+  BEGIN
+    trio_1 := resultado_num[1] + resultado_num[2] + resultado_num[6];
+    trio_2 := resultado_num[3] + resultado_num[7] + resultado_num[8];
+    trio_3 := resultado_num[4] + resultado_num[5] + resultado_num[10];
+    trio_4 := resultado_num[9] + resultado_num[14] + resultado_num[15];
+    trio_5 := resultado_num[19] + resultado_num[20] + resultado_num[25];
+    trio_6 := resultado_num[18] + resultado_num[23] + resultado_num[24];
+    trio_7 := resultado_num[12] + resultado_num[13] + resultado_num[17];
+    trio_8 := resultado_num[11] + resultado_num[16] + resultado_num[21] + resultado_num[22];
+
+    trio_soma := trio_1 + trio_2 + trio_3 + trio_4 + trio_5 + trio_6 + trio_7 + trio_8;
+
+    if trio_soma <> 15 THEN
+      raise EXCEPTION 'Erro, concurso: % quantidade diferente de 15';
+      exit;
+    END IF;
+
+    Insert into lotofacil.lotofacil_resultado_trio(concurso, trio_id)
+      Select concurso_novo, trio_id from lotofacil.lotofacil_id_trio
+    where trio_1 = tr_1 AND
+      trio_2 = tr_2 AND
+      trio_3 = tr_3 AND
+      trio_4 = tr_4 AND
+      trio_5 = tr_5 AND
+      trio_6 = tr_6 AND
+      trio_7 = tr_7 AND
+      trio_8 = tr_8;
+
+
+  END;$$;
+
+
 drop function if exists lotofacil.fn_lotofacil_resultado_primo(numeric, numeric[]);
 create function lotofacil.fn_lotofacil_resultado_primo(concurso_novo numeric, resultado_num numeric[]) returns VOID
  LANGUAGE plpgsql
@@ -479,7 +688,8 @@ begin
   Insert into lotofacil.lotofacil_resultado_primo(concurso, prm_id)
     Select concurso_novo, prm_id from lotofacil.lotofacil_id_primo
   where primo = qt_primo and nao_primo = qt_nao_primo;
-
 end;$$
+
+
 
 

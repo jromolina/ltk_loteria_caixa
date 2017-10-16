@@ -40,6 +40,9 @@ par_impar_id      par    impar    qt_vezes
   
  */
 
+-- Delete a tabela lotofacil_id, pois depende das outras.
+drop table if exists lotofacil.lotofacil_id;
+
 /**
   Horizontal.
  */
@@ -53,16 +56,13 @@ create table lotofacil.lotofacil_id_horizontal(
   hrz_4 numeric not null check (hrz_4 in (0, 1, 2, 3, 4, 5)),
   hrz_5 numeric not null check (hrz_5 in (0, 1, 2, 3, 4, 5)),
 
-  CONSTRAINT lotofacil_id_horizontal_pk PRIMARY KEY (hrz_id, hrz_qt, hrz_1, hrz_2, hrz_3, hrz_4, hrz_5),
+  CONSTRAINT lotofacil_id_horizontal_pk PRIMARY KEY (hrz_id),
   CONSTRAINT lotofacil_id_horizontal_chk check ((hrz_1 + hrz_2 + hrz_3 + hrz_4 + hrz_5) = hrz_qt),
 
   -- Devemos garantir que as colunas terão valores únicos.
   -- Não precisamos validar a coluna com a quantidade pois a validação é realizada acima.
   CONSTRAINT lotofacil_id_horizontal_unk UNIQUE (hrz_1, hrz_2, hrz_3, hrz_4, hrz_5)
 );
-
-
-
 
 /**
   Vertical.
@@ -77,15 +77,13 @@ create table lotofacil.lotofacil_id_vertical(
   vrt_4 numeric not null check (vrt_4 in (0, 1, 2, 3, 4, 5)),
   vrt_5 numeric not null check (vrt_5 in (0, 1, 2, 3, 4, 5)),
 
-  CONSTRAINT lotofacil_id_vertical_pk PRIMARY KEY (vrt_id, vrt_qt, vrt_1, vrt_2, vrt_3, vrt_4, vrt_5),
+  CONSTRAINT lotofacil_id_vertical_pk PRIMARY KEY (vrt_id),
   CONSTRAINT lotofacil_id_vertical_chk check ((vrt_1 + vrt_2 + vrt_3 + vrt_4 + vrt_5) = vrt_qt),  
 
   -- Devemos garantir que as colunas terão valores únicos.
   -- Não precisamos validar a coluna com a quantidade pois a validação é realizada acima.
   CONSTRAINT lotofacil_id_vertical_unk UNIQUE (vrt_1, vrt_2, vrt_3, vrt_4, vrt_5)
 );
-
-
 
 /**
   Diagonal.
@@ -100,7 +98,7 @@ create table lotofacil.lotofacil_id_diagonal(
   dg_4 numeric not null check (dg_4 in (0, 1, 2, 3, 4, 5)),
   dg_5 numeric not null check (dg_5 in (0, 1, 2, 3, 4, 5)),
 
-  CONSTRAINT lotofacil_id_diagonal_pk PRIMARY KEY (dg_id, dg_qt, dg_1, dg_2, dg_3, dg_4, dg_5),
+  CONSTRAINT lotofacil_id_diagonal_pk PRIMARY KEY (dg_id),
   CONSTRAINT lotofacil_id_diagonal_chk check ((dg_1 + dg_2 + dg_3 + dg_4 + dg_5) = dg_qt),
   
   -- Devemos garantir que as colunas terão valores únicos.
@@ -121,7 +119,7 @@ create table lotofacil.lotofacil_id_cruzeta(
   crz_4 numeric not null check (crz_4 in (0, 1, 2, 3, 4, 5)),
   crz_5 numeric not null check (crz_5 in (0, 1, 2, 3, 4, 5)),
 
-  CONSTRAINT lotofacil_id_cruzeta_pk PRIMARY KEY (crz_id, crz_qt, crz_1, crz_2, crz_3, crz_4, crz_5),
+  CONSTRAINT lotofacil_id_cruzeta_pk PRIMARY KEY (crz_id),
   CONSTRAINT lotofacil_id_cruzeta_chk check ((crz_1 + crz_2 + crz_3 + crz_4 + crz_5) = crz_qt),
 
   -- Devemos garantir que as colunas terão valores únicos.
@@ -129,6 +127,35 @@ create table lotofacil.lotofacil_id_cruzeta(
   CONSTRAINT lotofacil_id_cruzeta_unk UNIQUE (crz_1, crz_2, crz_3, crz_4, crz_5)
 
 );
+
+/**
+  Cruzeta.
+ */
+drop table if EXISTS lotofacil.lotofacil_id_trio;
+create table lotofacil.lotofacil_id_trio(
+  trio_id numeric not null,
+  tr_qt numeric not null check (tr_qt in (15, 16, 17, 18)),
+  tr_1 numeric not null check (tr_1 in (0, 1, 2, 3)),
+  tr_2 numeric not null check (tr_2 in (0, 1, 2, 3)),
+  tr_3 numeric not null check (tr_3 in (0, 1, 2, 3)),
+  tr_4 numeric not null check (tr_4 in (0, 1, 2, 3)),
+  tr_5 numeric not null check (tr_5 in (0, 1, 2, 3)),
+  tr_6 numeric not null check (tr_6 in (0, 1, 2, 3)),
+  tr_7 numeric not null check (tr_7 in (0, 1, 2, 3)),
+  tr_8 numeric not null check (tr_8 in (0, 1, 2, 3, 4)),
+
+  CONSTRAINT lotofacil_id_trio_pk PRIMARY KEY (trio_id),
+  CONSTRAINT lotofacil_id_trio_chk check ((tr_1 + tr_2 + tr_3 + tr_4 + tr_5 + tr_6 + tr_7 + tr_8) = tr_qt),
+
+  -- Devemos garantir que as colunas terão valores únicos.
+  -- Não precisamos validar a coluna com a quantidade pois a validação é realizada acima.
+  CONSTRAINT lotofacil_id_trio_unk UNIQUE (tr_1, tr_2, tr_3, tr_4, tr_5, tr_6, tr_7, tr_8)
+
+);
+
+
+
+
 
 /**
   Quarteto.
@@ -153,7 +180,7 @@ create table lotofacil.lotofacil_id_quarteto(
   qrt_5 numeric not null check (qrt_5 in (0, 1, 2, 3, 4)),
   qrt_6 numeric not null check (qrt_6 in (0, 1, 2, 3, 4, 5)),
 
-  CONSTRAINT lotofacil_id_quarteto_pk PRIMARY KEY (qrt_id, qrt_qt, qrt_1, qrt_2, qrt_3, qrt_4, qrt_5, qrt_6),
+  CONSTRAINT lotofacil_id_quarteto_pk PRIMARY KEY (qrt_id),
   CONSTRAINT lotofacil_id_quarteto_chk check ((qrt_1 + qrt_2 + qrt_3 + qrt_4 + qrt_5 + qrt_6) = qrt_qt),
 
   -- Devemos garantir que as colunas terão valores únicos.
@@ -161,11 +188,726 @@ create table lotofacil.lotofacil_id_quarteto(
   CONSTRAINT lotofacil_id_quarteto_unk UNIQUE (qrt_1, qrt_2, qrt_3, qrt_4, qrt_5, qrt_6)
 );
 
+/**
+  Externo x Interno.
+  Na lotofacil, há no máximo, 9 internos e 16 externos.
+  Em todas as combinações de 15, 16, 17 e 18 bolas, sempre haverá
+  no máximo 9 internos, então, praticamente, podemos dizer, que ele é
+  comum a todos eles, então, vamos criar este campo também.
+ */
+drop table if exists lotofacil.lotofacil_id_externo_interno;
+create table lotofacil.lotofacil_id_externo_interno(
+  ext_int_id numeric not null,
+  ext_int_qt numeric not null check (ext_int_qt in (15, 16, 17, 18)),
+
+  externo numeric not null check (externo between 6 and 16),
+  interno numeric not null check (interno between 0 and 9),
+
+  CONSTRAINT lotofacil_id_externo_interno_pk PRIMARY KEY (ext_int_id),
+  CONSTRAINT lotofacil_id_externo_interno_chk check (externo + interno = ext_int_qt),
+
+  -- Devemos garantir que as colunas terão valores únicos.
+  -- Não precisamos validar a coluna com a quantidade pois a validação é realizada acima.
+  CONSTRAINT lotofacil_id_externo_interno_unk UNIQUE (externo, interno)
+);
+
+drop table if exists lotofacil.lotofacil_id_externo_interno_comum;
+create table lotofacil.lotofacil_id_externo_interno_comum(
+  comum_id  SERIAL PRIMARY KEY,
+  ext_int_id numeric not null,
+  ext_int_comum_id numeric not null,
+  CONSTRAINT lotofacil_id_externo_interno_comum_unk unique(ext_int_id, ext_int_comum_id)
+);
+
+
+
+/**
+  Par x Impar.
+  Criar identificadores para cada combinação par e ímpar da lotofacil.
+  Na lotofácil, há 12 pares e 13 ímpares, entretanto, iremos criar id
+  somente pra as combinações possíveis na lotofacil, as combinações possíveis
+  são de 15, 16, 17 e 18 bolas.
+  Então, uma combinação de 15 bolas, terá no mínimo 2 pares e 13 impares ou, por exemplo
+  terá 12 pares e 3 ímpares.
+ */
+drop table if exists lotofacil.lotofacil_id_par_impar;
+create table lotofacil.lotofacil_id_par_impar(
+  par_impar_id numeric not null,
+  par_impar_qt numeric not null check (par_impar_qt in (15, 16, 17, 18)),
+
+  par numeric not null check (par between 0 and 12),
+  impar numeric not null check (impar between 0 and 13),
+
+  CONSTRAINT lotofacil_id_par_impar_pk PRIMARY KEY (par_impar_id),
+  CONSTRAINT lotofacil_id_par_impar_chk check (par + impar = par_impar_qt),
+
+    -- Devemos garantir que as colunas terão valores únicos.
+  -- Não precisamos validar a coluna com a quantidade pois a validação é realizada acima.
+  CONSTRAINT lotofacil_id_par_impar_interno_unk UNIQUE (par, impar)
+);
+
+
+drop table if exists lotofacil.lotofacil_id_par_impar_comum;
+create table lotofacil.lotofacil_id_par_impar_comum(
+  comum_id  SERIAL PRIMARY KEY,
+  par_impar_id numeric not null,
+  par_impar_comum_id numeric not null,
+  CONSTRAINT lotofacil_id_par_impar_comum_unk unique(par_impar_id, par_impar_comum_id)
+);
+comment on table lotofacil.lotofacil_id_par_impar_comum IS
+'Esta tabela armazena os ids das combinações par x impar, '
+'de um total de bolas relativo a outra combinação par x impar de um total de bolas diferentes'
+'ou seja, todas as combinações de 15, serão relacionadas com as outras combinações de 16, 17 e 18,'
+'por exemplo, a combinação: 2 par x 13 impares, é uma combinação de 15 bolas, '
+'então, devemos verificar se nas outras combinações de 16, 17 e 18, se há pela menos uma combinação'
+'de 2 par ou 13 ímpares, neste exemplo, há:'
+'as combinações são:'
+'16 bolas: 3 par x 13 ímpares,'
+'17 bolas: 4 par x 13 ímpares,'
+'18 bolas: 5 par x 13 ímpares,'
+'ou seja, iremos comparar a combinação par x impar com a combinação com um total de bolas diferentes,'
+'e verificar se há a quantidade de par é igual à combinação que estamos comparando e o mesmo pra a '
+'quantidade de números ímpares.';
+
+--Select lotofacil.fn_lotofacil_id_grupo();
+drop table if exists lotofacil.lotofacil_id_primo_comum;
+drop table if exists lotofacil.lotofacil_id_primo;
+create table lotofacil.lotofacil_id_primo(
+  prm_id numeric not null,
+  prm_qt numeric not null,
+  primo numeric not null,
+  nao_primo numeric not null,
+
+  CONSTRAINT lotofacil_id_primo_pk PRIMARY KEY (prm_id),
+  CONSTRAINT lotofacil_id_primo_unk unique (primo, nao_primo)
+);
+comment on table lotofacil.lotofacil_id_primo IS
+'Esta tabela armazena todas as combinações possíveis de números primos na lotofacil.'
+'Os números primos são: 2, 3, 5, 7, 11, 13, 17, 19, 23.'
+'Ou seja, há 9 números primos, isto que dizer que pode haver no máximo 9 números primos';
+
+/**
+
+ */
+drop table if exists lotofacil.lotofacil_id_primo_comum;
+create table lotofacil.lotofacil_id_primo_comum(
+  comum_id  SERIAL PRIMARY KEY,
+  prm_id numeric not null,
+  prm_comum_id numeric not null,
+
+  CONSTRAINT lotofacil_id_primo_comum_unk UNIQUE (prm_id, prm_comum_id),
+  constraint lotofacil_id_primo_comum_fk FOREIGN KEY (prm_comum_id) REFERENCES lotofacil.lotofacil_id_primo(prm_id)
+);
+
+
+
+/**
+  Novos: Bola NÃO SAIU no concurso anterior, mas saiu no concurso atual.
+  Repetidos: Bola SAIU no concurso anterior e saiu no atual também.
+  Há 25 números, são sorteados 15, restam 10 números.
+  Então, pode haver de 0 a 10 números novos.
+
+ */
+drop table if exists lotofacil.lotofacil_id_novos_repetidos;
+create table lotofacil.lotofacil_id_novos_repetidos (
+  novos_repetidos_id  NUMERIC NOT NULL,
+  novos     NUMERIC NOT NULL CHECK (novos >= 0 AND novos <= 10),
+  repetidos NUMERIC NOT NULL CHECK (repetidos >= 5 AND repetidos <= 15),
+
+  CONSTRAINT lotofacil_id_novos_repetidos_pk PRIMARY KEY (novos_repetidos_id),
+  CONSTRAINT lotofacil_id_novos_repetidos_chk CHECK ((novos + repetidos) = 15),
+
+    -- Devemos garantir que as colunas terão valores únicos.
+  -- Não precisamos validar a coluna com a quantidade pois a validação é realizada acima.
+  CONSTRAINT lotofacil_id_novos_repetidos_unk UNIQUE (novos, repetidos)
+);
+
+
+/**
+  Aqui, será criado todas as combinações possíveis referentes às combinações:
+  b1
+  b1_b8
+  b1_b8_b15
+  b1_b4_b8_b12_b15
+ */
+drop table if EXISTS lotofacil.lotofacil_id_b1;
+create table lotofacil.lotofacil_id_b1(
+  b1_id numeric not null,
+  b1 numeric not null check (b1 >= 1 and b1 <= 11),
+  CONSTRAINT lotofacil_id_b1_pk PRIMARY KEY (b1_id),
+  CONSTRAINT lotofacil_id_b1_unk UNIQUE (b1)
+);
+
+drop table if EXISTS lotofacil.lotofacil_id_b1_b15;
+create table lotofacil.lotofacil_id_b1_b15(
+  b1_b15_id numeric not null,
+  b1 numeric not null check (b1 >= 1 and b1 <= 11),
+  b15 numeric not null check (b15 >= 15 and b15 <= 25),
+  CONSTRAINT lotofacil_id_b1_b15_pk PRIMARY KEY (b1_b15_id),
+  CONSTRAINT lotofacil_id_b1_b15_unk UNIQUE (b1, b15)
+);
+
+drop table if EXISTS lotofacil.lotofacil_id_b1_b8_b15;
+create table lotofacil.lotofacil_id_b1_b8_b15(
+  b1_b8_b15_id numeric not null,
+  b1 numeric not null check (b1 >= 1 and b1 <= 11),
+  b8 numeric not null check (b8 >= 8 and b8 <= 18),
+  b15 numeric not null check (b15 >= 15 and b15 <= 25),
+  CONSTRAINT lotofacil_id_b1_b8_b15_pk PRIMARY KEY (b1_b8_b15_id),
+  CONSTRAINT lotofacil_id_b1_b8_b15_unk UNIQUE (b1, b8, b15)
+);
+
+drop table if EXISTS lotofacil.lotofacil_id_b1_b4_b8_b12_b15;
+create table lotofacil.lotofacil_id_b1_b4_b8_b12_b15(
+  b1_b4_b8_b12_b15_id numeric not null,
+  b1 numeric not null check (b1 >= 1 and b1 <= 11),
+  b4 numeric not null check (b4 >= 4 and b4 <= 14),
+  b8 numeric not null check (b8 >= 8 and b8 <= 18),
+  b12 numeric not null check (b12 >= 12 and b12 <= 22),
+  b15 numeric not null check (b15 >= 15 and b15 <= 25),
+  CONSTRAINT lotofacil_id_b1_b4_b8_b12_b15_pk PRIMARY KEY (b1_b4_b8_b12_b15_id),
+  CONSTRAINT lotofacil_id_b1_b4_b8_b12_b15_unk UNIQUE (b1, b4, b8, b12, b15)
+);
+
+drop table if exists lotofacil.lotofacil_id;
+create table lotofacil.lotofacil_id(
+  ltf_id numeric not null,
+  ltf_qt numeric not null,
+  par_impar_id numeric not null,
+  ext_int_id numeric not null,
+  prm_id numeric not null,
+  hrz_id numeric not null,
+  vrt_id numeric not null,
+  dg_id numeric not null,
+  crz_id numeric not null,
+  qrt_id numeric not null,
+  trio_id numeric not null,
+  b1_id numeric not null,
+  b1_b15_id numeric not null,
+  b1_b8_b15_id numeric not null,
+  b1_b4_b8_b12_b15_id numeric not null,
+  novos_repetidos_id numeric null,
+
+  CONSTRAINT lotofacil_identificadores_fk FOREIGN KEY (ltf_id) references lotofacil.lotofacil_num(ltf_id) on update cascade on delete cascade,
+  CONSTRAINT lotofacil_identificadores_fk2 FOREIGN KEY (ltf_qt) references lotofacil.lotofacil_num(ltf_id) on update cascade on delete cascade,
+  CONSTRAINT lotofacil_identificadores_fk3 FOREIGN KEY (par_impar_id) references lotofacil.lotofacil_id_par_impar(par_impar_id) on update cascade on delete cascade,
+  CONSTRAINT lotofacil_identificadores_fk4 FOREIGN KEY (ext_int_id) references lotofacil.lotofacil_id_externo_interno(ext_int_id) on update cascade on delete cascade,
+  CONSTRAINT lotofacil_identificadores_fk5 FOREIGN KEY (prm_id) references lotofacil.lotofacil_id_primo(prm_id) on update cascade on delete cascade,
+  CONSTRAINT lotofacil_identificadores_fk6 FOREIGN KEY (hrz_id) references lotofacil.lotofacil_id_horizontal(hrz_id) on update cascade on delete cascade,
+  CONSTRAINT lotofacil_identificadores_fk7 FOREIGN KEY (vrt_id) references lotofacil.lotofacil_id_vertical(vrt_id) on update cascade on delete cascade,
+  CONSTRAINT lotofacil_identificadores_fk8 FOREIGN KEY (dg_id) references lotofacil.lotofacil_id_diagonal(dg_id) on update cascade on delete cascade,
+  CONSTRAINT lotofacil_identificadores_fk9 FOREIGN KEY (crz_id) references lotofacil.lotofacil_id_cruzeta(crz_id) on update cascade on delete cascade,
+
+  CONSTRAINT lotofacil_identificadores_fk11 FOREIGN KEY (b1_id) REFERENCES lotofacil.lotofacil_id_b1(b1_id) on UPDATE cascade on delete cascade,
+  CONSTRAINT lotofacil_identificadores_fk12 FOREIGN KEY (b1_b15_id) REFERENCES lotofacil.lotofacil_id_b1_b15(b1_b15_id) on UPDATE cascade on delete cascade,
+  CONSTRAINT lotofacil_identificadores_fk13 FOREIGN KEY (b1_b8_b15_id) REFERENCES lotofacil.lotofacil_id_b1_b8_b15(b1_b8_b15_id) on UPDATE cascade on delete cascade,
+  CONSTRAINT lotofacil_identificadores_fk14 FOREIGN KEY (b1_b4_b8_b12_b15_id) REFERENCES lotofacil.lotofacil_id_b1_b4_b8_b12_b15(b1_b4_b8_b12_b15_id) on UPDATE cascade on delete cascade
+);
+
+
+drop table if exists lotofacil.lotofacil_id_grupo_1_bolas;
+create table lotofacil.lotofacil_id_grupo_1_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_1_bolas_chk unique(
+    bola1
+  ),
+  CONSTRAINT lotofacil_id_grupo_1_bolas_chk2 check((bola1 >= 1) and (bola1 <= 25)),
+
+  constraint lotofacil_id_grupo_1_bolas_pk PRIMARY KEY (grp_id)
+);
+
+drop table if exists lotofacil.lotofacil_id_grupo_2_bolas;
+create table lotofacil.lotofacil_id_grupo_2_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_2_bolas_chk unique(
+    bola1, bola2
+  ),
+  CONSTRAINT lotofacil_id_grupo_2_bolas_chk check (
+    (bola1 < bola2)
+  ),
+  CONSTRAINT lotofacil_id_grupo_2_bolas_chk2 check((bola1 >= 1) and (bola2 <= 25)),
+
+  constraint lotofacil_id_grupo_2_bolas_pk PRIMARY KEY (grp_id)
+);
+
+drop table if exists lotofacil.lotofacil_id_grupo_3_bolas;
+create table lotofacil.lotofacil_id_grupo_3_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_3_bolas_chk unique(
+    bola1, bola2, bola3
+  ),
+  CONSTRAINT lotofacil_id_grupo_3_bolas_chk check (
+    (bola1 < bola2)
+    and (bola2 < bola3)
+  ),
+  CONSTRAINT lotofacil_id_grupo_3_bolas_chk2 check((bola1 >= 1) and (bola3 <= 25)),
+
+  constraint lotofacil_id_grupo_3_bolas_pk PRIMARY KEY (grp_id)
+);
+
+drop table if exists lotofacil.lotofacil_id_grupo_4_bolas;
+create table lotofacil.lotofacil_id_grupo_4_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+  bola4 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_4_bolas_chk unique(
+    bola1, bola2, bola3, bola4
+  ),
+  CONSTRAINT lotofacil_id_grupo_4_bolas_chk check (
+    (bola1 < bola2)
+    and (bola2 < bola3)
+    and (bola3 < bola4)
+  ),
+  CONSTRAINT lotofacil_id_grupo_4_bolas_chk2 check((bola1 >= 1) and (bola4 <= 25)),
+
+  constraint lotofacil_id_grupo_4_bolas_pk PRIMARY KEY (grp_id)
+);
+
+
+drop table if exists lotofacil.lotofacil_id_grupo_5_bolas;
+create table lotofacil.lotofacil_id_grupo_5_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+  bola4 numeric not null,
+  bola5 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_5_bolas_chk unique(
+    bola1, bola2, bola3, bola4, bola5
+  ),
+  CONSTRAINT lotofacil_id_grupo_5_bolas_chk check (
+    (bola1 < bola2)
+    and (bola2 < bola3)
+    and (bola3 < bola4)
+    and (bola4 < bola5)
+  ),
+  CONSTRAINT lotofacil_id_grupo_5_bolas_chk2 check((bola1 >= 1) and (bola5 <= 25)),
+
+  constraint lotofacil_id_grupo_5_bolas_pk PRIMARY KEY (grp_id)
+);
+
+
+drop table if exists lotofacil.lotofacil_id_grupo_6_bolas;
+create table lotofacil.lotofacil_id_grupo_6_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+  bola4 numeric not null,
+  bola5 numeric not null,
+  bola6 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_6_bolas_chk unique(
+    bola1, bola2, bola3, bola4, bola5, bola6
+  ),
+  CONSTRAINT lotofacil_id_grupo_6_bolas_chk check (
+    (bola1 < bola2)
+    and (bola2 < bola3)
+    and (bola3 < bola4)
+    and (bola4 < bola5)
+    AND (bola5 < bola6)
+  ),
+  CONSTRAINT lotofacil_id_grupo_6_bolas_chk2 check((bola1 >= 1) and (bola6 <= 25)),
+
+  constraint lotofacil_id_grupo_6_bolas_pk PRIMARY KEY (grp_id)
+);
+
+
+
+drop table if exists lotofacil.lotofacil_id_grupo_7_bolas;
+create table lotofacil.lotofacil_id_grupo_7_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+  bola4 numeric not null,
+  bola5 numeric not null,
+  bola6 numeric not null,
+  bola7 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_7_bolas_chk unique(
+    bola1, bola2, bola3, bola4, bola5, bola6, bola7
+  ),
+  CONSTRAINT lotofacil_id_grupo_7_bolas_chk check (
+    (bola1 < bola2)
+    and (bola2 < bola3)
+    and (bola3 < bola4)
+    and (bola4 < bola5)
+    AND (bola5 < bola6)
+    AND (bola6 < bola7)
+  ),
+  CONSTRAINT lotofacil_id_grupo_7_bolas_chk2 check((bola1 >= 1) and (bola7 <= 25)),
+
+  constraint lotofacil_id_grupo_7_bolas_pk PRIMARY KEY (grp_id)
+);
+
+
+drop table if exists lotofacil.lotofacil_id_grupo_8_bolas;
+create table lotofacil.lotofacil_id_grupo_8_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+  bola4 numeric not null,
+  bola5 numeric not null,
+  bola6 numeric not null,
+  bola7 numeric not null,
+  bola8 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_8_bolas_chk unique(
+    bola1, bola2, bola3, bola4, bola5, bola6, bola7, bola8
+  ),
+  CONSTRAINT lotofacil_id_grupo_8_bolas_chk check (
+    (bola1 < bola2)
+    and (bola2 < bola3)
+    and (bola3 < bola4)
+    and (bola4 < bola5)
+    AND (bola5 < bola6)
+    AND (bola6 < bola7)
+    AND (bola7 < bola8)
+  ),
+  CONSTRAINT lotofacil_id_grupo_8_bolas_chk2 check((bola1 >= 1) and (bola8 <= 25)),
+
+  constraint lotofacil_id_grupo_8_bolas_pk PRIMARY KEY (grp_id)
+);
+
+
+drop table if exists lotofacil.lotofacil_id_grupo_9_bolas;
+create table lotofacil.lotofacil_id_grupo_9_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+  bola4 numeric not null,
+  bola5 numeric not null,
+  bola6 numeric not null,
+  bola7 numeric not null,
+  bola8 numeric not null,
+  bola9 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_9_bolas_chk unique(
+    bola1, bola2, bola3, bola4, bola5, bola6, bola7, bola8, bola9
+  ),
+  CONSTRAINT lotofacil_id_grupo_9_bolas_chk check (
+    (bola1 < bola2)
+    and (bola2 < bola3)
+    and (bola3 < bola4)
+    and (bola4 < bola5)
+    AND (bola5 < bola6)
+    AND (bola6 < bola7)
+    AND (bola7 < bola8)
+    AND (bola8 < bola9)
+  ),
+  CONSTRAINT lotofacil_id_grupo_9_bolas_chk2 check((bola1 >= 1) and (bola9 <= 25)),
+
+  constraint lotofacil_id_grupo_9_bolas_pk PRIMARY KEY (grp_id)
+);
+
+
+drop table if exists lotofacil.lotofacil_id_grupo_10_bolas;
+create table lotofacil.lotofacil_id_grupo_10_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+  bola4 numeric not null,
+  bola5 numeric not null,
+  bola6 numeric not null,
+  bola7 numeric not null,
+  bola8 numeric not null,
+  bola9 numeric not null,
+  bola10 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_10_bolas_chk unique(
+    bola1, bola2, bola3, bola4, bola5, bola6, bola7, bola8, bola9, bola10
+  ),
+  CONSTRAINT lotofacil_id_grupo_10_bolas_chk check (
+    (bola1 < bola2)
+    and (bola2 < bola3)
+    and (bola3 < bola4)
+    and (bola4 < bola5)
+    AND (bola5 < bola6)
+    AND (bola6 < bola7)
+    AND (bola7 < bola8)
+    AND (bola8 < bola9)
+    AND (bola9 < bola10)
+  ),
+  CONSTRAINT lotofacil_id_grupo_10_bolas_chk2 check((bola1 >= 1) and (bola10 <= 25)),
+
+  constraint lotofacil_id_grupo_10_bolas_pk PRIMARY KEY (grp_id)
+);
+
+
+
+drop table if exists lotofacil.lotofacil_id_grupo_11_bolas;
+create table lotofacil.lotofacil_id_grupo_11_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+  bola4 numeric not null,
+  bola5 numeric not null,
+  bola6 numeric not null,
+  bola7 numeric not null,
+  bola8 numeric not null,
+  bola9 numeric not null,
+  bola10 numeric not null,
+  bola11 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_11_bolas_chk unique(
+    bola1, bola2, bola3, bola4, bola5, bola6, bola7, bola8, bola9, bola10,
+    bola11
+  ),
+  CONSTRAINT lotofacil_id_grupo_11_bolas_chk check (
+    (bola1 < bola2)
+    and (bola2 < bola3)
+    and (bola3 < bola4)
+    and (bola4 < bola5)
+    AND (bola5 < bola6)
+    AND (bola6 < bola7)
+    AND (bola7 < bola8)
+    AND (bola8 < bola9)
+    AND (bola9 < bola10)
+    and (bola10 < bola11)    
+  ),
+  CONSTRAINT lotofacil_id_grupo_11_bolas_chk2 check((bola1 >= 1) and (bola11 <= 25)),
+
+  constraint lotofacil_id_grupo_11_bolas_pk PRIMARY KEY (grp_id)
+);
+
+
+
+drop table if exists lotofacil.lotofacil_id_grupo_12_bolas;
+create table lotofacil.lotofacil_id_grupo_12_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+  bola4 numeric not null,
+  bola5 numeric not null,
+  bola6 numeric not null,
+  bola7 numeric not null,
+  bola8 numeric not null,
+  bola9 numeric not null,
+  bola10 numeric not null,
+  bola11 numeric not null,
+  bola12 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_12_bolas_chk unique(
+    bola1, bola2, bola3, bola4, bola5, bola6, bola7, bola8, bola9, bola10,
+    bola11, bola12
+  ),
+  CONSTRAINT lotofacil_id_grupo_12_bolas_chk check (
+    (bola1 < bola2)
+    and (bola2 < bola3)
+    and (bola3 < bola4)
+    and (bola4 < bola5)
+    AND (bola5 < bola6)
+    AND (bola6 < bola7)
+    AND (bola7 < bola8)
+    AND (bola8 < bola9)
+    AND (bola9 < bola10)
+    and (bola10 < bola11)
+    and (bola11 < bola12)
+  ),
+  CONSTRAINT lotofacil_id_grupo_12_bolas_chk2 check((bola1 >= 1) and (bola12 <= 25)),
+  
+  constraint lotofacil_id_grupo_12_bolas_pk PRIMARY KEY (grp_id)
+);
+
+
+drop table if exists lotofacil.lotofacil_id_grupo_12_bolas;
+create table lotofacil.lotofacil_id_grupo_12_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+  bola4 numeric not null,
+  bola5 numeric not null,
+  bola6 numeric not null,
+  bola7 numeric not null,
+  bola8 numeric not null,
+  bola9 numeric not null,
+  bola10 numeric not null,
+  bola11 numeric not null,
+  bola12 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_12_bolas_chk unique(
+    bola1,
+    bola2,
+    bola3,
+    bola4,
+    bola5,
+    bola6,
+    bola7,
+    bola8,
+    bola9,
+    bola10,
+    bola11,
+    bola12
+  ),
+  CONSTRAINT lotofacil_id_grupo_12_bolas_chk check (
+    (bola1 < bola2)
+    and (bola2 < bola3)
+    and (bola3 < bola4)
+    and (bola4 < bola5)
+    AND (bola5 < bola6)
+    AND (bola6 < bola7)
+    AND (bola7 < bola8)
+    AND (bola8 < bola9)
+    AND (bola9 < bola10)
+    and (bola10 < bola11)
+    and (bola11 < bola12)
+  ),
+  CONSTRAINT lotofacil_id_grupo_12_bolas_chk2 check((bola1 >= 1) and (bola12 <= 25)),
+  
+  constraint lotofacil_id_grupo_12_bolas_pk PRIMARY KEY (grp_id)
+);
+
+drop table if exists lotofacil.lotofacil_id_grupo_13_bolas;
+create table lotofacil.lotofacil_id_grupo_13_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+  bola4 numeric not null,
+  bola5 numeric not null,
+  bola6 numeric not null,
+  bola7 numeric not null,
+  bola8 numeric not null,
+  bola9 numeric not null,
+  bola10 numeric not null,
+  bola11 numeric not null,
+  bola12 numeric not null,
+  bola13 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_13_bolas_chk unique(
+    bola1, bola2, bola3, bola4, bola5, bola6, bola7, bola8, bola9, bola10,
+    bola11, bola12, bola13
+  ),
+  CONSTRAINT lotofacil_id_grupo_13_bolas_chk check (
+    (bola1 < bola2)
+    and (bola2 < bola3)
+    and (bola3 < bola4)
+    and (bola4 < bola5)
+    AND (bola5 < bola6)
+    AND (bola6 < bola7)
+    AND (bola7 < bola8)
+    AND (bola8 < bola9)
+    AND (bola9 < bola10)
+    and (bola10 < bola11)
+    and (bola11 < bola12)
+    and (bola12 < bola13)
+  ),
+  CONSTRAINT lotofacil_id_grupo_13_bolas_chk2 check((bola1 >= 1) and (bola13 <= 25)),
+  
+  constraint lotofacil_id_grupo_13_bolas_pk PRIMARY KEY (grp_id)
+);
+
+
+drop table if exists lotofacil.lotofacil_id_grupo_14_bolas;
+create table lotofacil.lotofacil_id_grupo_14_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+  bola4 numeric not null,
+  bola5 numeric not null,
+  bola6 numeric not null,
+  bola7 numeric not null,
+  bola8 numeric not null,
+  bola9 numeric not null,
+  bola10 numeric not null,
+  bola11 numeric not null,
+  bola12 numeric not null,
+  bola13 numeric not null,
+  bola14 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_14_bolas_chk unique(
+    bola1, bola2, bola3, bola4, bola5, bola6, bola7, bola8, bola9, bola10,
+    bola11, bola12, bola13, bola14
+  ),
+  CONSTRAINT lotofacil_id_grupo_14_bolas_chk check (
+    (bola1 < bola2)
+    and (bola2 < bola3)
+    and (bola3 < bola4)
+    and (bola4 < bola5)
+    AND (bola5 < bola6)
+    AND (bola6 < bola7)
+    AND (bola7 < bola8)
+    AND (bola8 < bola9)
+    AND (bola9 < bola10)
+    and (bola10 < bola11)
+    and (bola11 < bola12)
+    and (bola12 < bola13)
+    and (bola13 < bola14)
+  ),
+  CONSTRAINT lotofacil_id_grupo_14_bolas_chk2 check((bola1 >= 1) and (bola14 <= 25)),
+  
+  constraint lotofacil_id_grupo_14_bolas_pk PRIMARY KEY (grp_id)
+);
+
+drop table if exists lotofacil.lotofacil_id_grupo_15_bolas;
+create table lotofacil.lotofacil_id_grupo_15_bolas (
+  grp_id numeric not null,
+  bola1 numeric not null,
+  bola2 numeric not null,
+  bola3 numeric not null,
+  bola4 numeric not null,
+  bola5 numeric not null,
+  bola6 numeric not null,
+  bola7 numeric not null,
+  bola8 numeric not null,
+  bola9 numeric not null,
+  bola10 numeric not null,
+  bola11 numeric not null,
+  bola12 numeric not null,
+  bola13 numeric not null,
+  bola14 numeric not null,
+  bola15 numeric not null,
+
+  CONSTRAINT lotofacil_id_grupo_15_bolas_chk unique(
+    bola1, bola2, bola3, bola4, bola5, bola6, bola7, bola8, bola9, bola10,
+    bola11, bola12, bola13, bola14, bola15
+  ),
+  CONSTRAINT lotofacil_id_grupo_15_bolas_chk check (
+    (bola1 < bola2) and (bola2 < bola3) and (bola3 < bola4) and (bola4 < bola5) AND
+    (bola5 < bola6) and (bola6 < bola7) and (bola7 < bola8) and (bola8 < bola9) AND
+    (bola9 < bola10) and (bola10 < bola11) and (bola11 < bola12) and (bola12 < bola13) AND 
+    (bola13 < bola14) and (bola14 < bola15)
+  ),
+  CONSTRAINT lotofacil_id_grupo_15_bolas_chk2 check((bola1 >= 1) and (bola15 <= 25)),
+  
+  constraint lotofacil_id_grupo_15_bolas_pk PRIMARY KEY (grp_id)
+);
+
+
+
+
+
+
+
+/**
+
+
 drop function if exists lotofacil.fn_lotofacil_inserir_quarteto_id();
 create function lotofacil.fn_lotofacil_inserir_quarteto_id()
-  returns VOID
-  LANGUAGE plpgsql
-  as $$
+returns VOID
+LANGUAGE plpgsql
+as $$
   declare
     -- Serve pra indicar o índice de cada tabela.
     indiceRegistro numeric default 0;
@@ -202,7 +944,7 @@ create function lotofacil.fn_lotofacil_inserir_quarteto_id()
                   indiceRegistro := indiceRegistro + 1;
 
                   Insert Into lotofacil.lotofacil_id_quarteto(qrt_id, qrt_qt, qrt_1, qrt_2, qrt_3, qrt_4, qrt_5, qrt_6)
-                    values(indiceRegistro, somaColuna, Coluna_1, Coluna_2, Coluna_3, Coluna_4, Coluna_5, Coluna_6);
+                  values(indiceRegistro, somaColuna, Coluna_1, Coluna_2, Coluna_3, Coluna_4, Coluna_5, Coluna_6);
 
                 END IF;
               END LOOP;
@@ -213,37 +955,11 @@ create function lotofacil.fn_lotofacil_inserir_quarteto_id()
     END LOOP;
   end $$;
 
-Select lotofacil.fn_lotofacil_inserir_quarteto_id();
+--Select lotofacil.fn_lotofacil_inserir_quarteto_id();
 
 
 
 
-/**
-  Externo x Interno.
-  Na lotofacil, há no máximo, 9 internos e 16 externos.
-  Em todas as combinações de 15, 16, 17 e 18 bolas, sempre haverá
-  no máximo 9 internos, então, praticamente, podemos dizer, que ele é
-  comum a todos eles, então, vamos criar este campo também.
- */
-drop table if exists lotofacil.lotofacil_id_externo_interno;
-create table lotofacil.lotofacil_id_externo_interno(
-  ext_id numeric not null,
-
-  -- Vamos usar este campo, quando quisermos, pegar todas as combinações
-  -- de 15, 16, 17 e 18 bolas.
-  int_id numeric not null check (int_id >= 0 and int_id <= 9),
-  ext_int_qt numeric not null check (ext_int_qt in (15, 16, 17, 18)),
-
-  externo numeric not null check (externo between 6 and 16),
-  interno numeric not null check (interno between 0 and 9),
-
-  CONSTRAINT lotofacil_id_externo_interno_pk PRIMARY KEY (ext_id, ext_int_qt),
-  CONSTRAINT lotofacil_id_externo_interno_chk check (externo + interno = ext_int_qt),
-  
-  -- Devemos garantir que as colunas terão valores únicos.
-  -- Não precisamos validar a coluna com a quantidade pois a validação é realizada acima.
-  CONSTRAINT lotofacil_id_externo_interno_unk UNIQUE (externo, interno)
-);
 
 drop function if exists lotofacil.fn_lotofacil_id_inserir_externo_interno();
 create function lotofacil.fn_lotofacil_id_inserir_externo_interno()
@@ -284,56 +1000,7 @@ create function lotofacil.fn_lotofacil_id_inserir_externo_interno()
     END LOOP;
   end;
   $$;
-Select lotofacil.fn_lotofacil_id_inserir_externo_interno();
-
-
-/**
-  Par x Impar.
-  Criar identificadores para cada combinação par e ímpar da lotofacil.
-  Na lotofácil, há 12 pares e 13 ímpares, entretanto, iremos criar id
-  somente pra as combinações possíveis na lotofacil, as combinações possíveis
-  são de 15, 16, 17 e 18 bolas.
-  Então, uma combinação de 15 bolas, terá no mínimo 2 pares e 13 impares ou, por exemplo
-  terá 12 pares e 3 ímpares.
- */
-drop table if exists lotofacil.lotofacil_id_par_impar;
-create table lotofacil.lotofacil_id_par_impar(
-  par_impar_id numeric not null,
-  par_impar_qt numeric not null check (par_impar_qt in (15, 16, 17, 18)),
-
-  par numeric not null check (par between 0 and 12),
-  impar numeric not null check (impar between 0 and 13),
-
-  CONSTRAINT lotofacil_id_par_impar_pk PRIMARY KEY (par_impar_id, par_impar_qt),
-  CONSTRAINT lotofacil_id_par_impar_chk check (par + impar = par_impar_qt),
-  
-    -- Devemos garantir que as colunas terão valores únicos.
-  -- Não precisamos validar a coluna com a quantidade pois a validação é realizada acima.
-  CONSTRAINT lotofacil_id_par_impar_interno_unk UNIQUE (par, impar)
-);
-
-
-drop table if exists lotofacil.lotofacil_id_par_impar_comum;
-create table lotofacil.lotofacil_id_par_impar_comum(
-  comum_id  SERIAL PRIMARY KEY,
-  par_impar_id numeric not null,
-  par_impar_comum_id numeric not null,
-  CONSTRAINT lotofacil_id_par_impar_comum_unk unique(par_impar_id, par_impar_comum_id)
-);
-comment on table lotofacil.lotofacil_id_par_impar_comum IS
-'Esta tabela armazena os ids das combinações par x impar, '
-'de um total de bolas relativo a outra combinação par x impar de um total de bolas diferentes'
-'ou seja, todas as combinações de 15, serão relacionadas com as outras combinações de 16, 17 e 18,'
-'por exemplo, a combinação: 2 par x 13 impares, é uma combinação de 15 bolas, '
-'então, devemos verificar se nas outras combinações de 16, 17 e 18, se há pela menos uma combinação'
-'de 2 par ou 13 ímpares, neste exemplo, há:'
-'as combinações são:'
-'16 bolas: 3 par x 13 ímpares,'
-'17 bolas: 4 par x 13 ímpares,'
-'18 bolas: 5 par x 13 ímpares,'
-'ou seja, iremos comparar a combinação par x impar com a combinação com um total de bolas diferentes,'
-'e verificar se há a quantidade de par é igual à combinação que estamos comparando e o mesmo pra a '
-'quantidade de números ímpares.';
+--Select lotofacil.fn_lotofacil_id_inserir_externo_interno();
 
 drop function if exists lotofacil.fn_lotofacil_id_par_impar();
 create function lotofacil.fn_lotofacil_id_par_impar()
@@ -443,19 +1110,6 @@ create function lotofacil.fn_lotofacil_id_par_impar_comum()
   END;$$;
 Select lotofacil.fn_lotofacil_id_par_impar_comum();
 
-/**
-
- */
-drop table if exists lotofacil.lotofacil_id_primo_comum;
-create table lotofacil.lotofacil_id_primo_comum(
-  comum_id  SERIAL PRIMARY KEY,
-  prm_id numeric not null,
-  prm_comum_id numeric not null,
-
-  CONSTRAINT lotofacil_id_primo_comum_unk UNIQUE (prm_id, prm_comum_id),
-  constraint lotofacil_id_primo_comum_fk FOREIGN KEY (prm_comum_id) REFERENCES lotofacil.lotofacil_id_primo(prm_id)
-);
-
 drop function if exists lotofacil.fn_lotofacil_id_primo_comum();
 create function lotofacil.fn_lotofacil_id_primo_comum()
   returns VOID
@@ -493,35 +1147,7 @@ create function lotofacil.fn_lotofacil_id_primo_comum()
     END LOOP;
   END;$$;
 
-Select from lotofacil.fn_lotofacil_id_primo_comum();
-
-
-
-
-
-
-
-
-/**
-  Novos: Bola NÃO SAIU no concurso anterior, mas saiu no concurso atual.
-  Repetidos: Bola SAIU no concurso anterior e saiu no atual também.
-  Há 25 números, são sorteados 15, restam 10 números.
-  Então, pode haver de 0 a 10 números novos.
-
- */
-drop table if exists lotofacil.lotofacil_id_novos_repetidos;
-create table lotofacil.lotofacil_id_novos_repetidos (
-  nvrpt_id  NUMERIC NOT NULL,
-  novos     NUMERIC NOT NULL CHECK (novos >= 0 AND novos <= 10),
-  repetidos NUMERIC NOT NULL CHECK (repetidos >= 5 AND repetidos <= 15),
-  
-  CONSTRAINT lotofacil_id_novos_repetidos_pk PRIMARY KEY (nvrpt_id, novos, repetidos),
-  CONSTRAINT lotofacil_id_novos_repetidos_chk CHECK ((novos + repetidos) = 15),
-  
-    -- Devemos garantir que as colunas terão valores únicos.
-  -- Não precisamos validar a coluna com a quantidade pois a validação é realizada acima.
-  CONSTRAINT lotofacil_id_novos_repetidos_unk UNIQUE (novos, repetidos)
-);
+-- Select from lotofacil.fn_lotofacil_id_primo_comum();
 
 drop function if exists lotofacil.fn_lotofacil_id_novos_repetidos();
 create function lotofacil.fn_lotofacil_id_novos_repetidos()
@@ -620,53 +1246,6 @@ create function lotofacil.fn_lotofacil_id_hrz_vrt_dg_crz()
 
 Select lotofacil.fn_lotofacil_id_hrz_vrt_dg_crz();
 
-/**
-  Aqui, será criado todas as combinações possíveis referentes às combinações:
-  b1
-  b1_b8
-  b1_b8_b15
-  b1_b4_b8_b12_b15
- */
-drop table if EXISTS lotofacil.lotofacil_id_b1;
-create table lotofacil.lotofacil_id_b1(
-  b1_id numeric not null,
-  b1 numeric not null check (b1 >= 1 and b1 <= 11),
-  CONSTRAINT lotofacil_id_b1_pk PRIMARY KEY (b1_id),
-  CONSTRAINT lotofacil_id_b1_unk UNIQUE (b1)
-);
-
-drop table if EXISTS lotofacil.lotofacil_id_b1_b15;
-create table lotofacil.lotofacil_id_b1_b15(
-  b1_b15_id numeric not null,
-  b1 numeric not null check (b1 >= 1 and b1 <= 11),
-  b15 numeric not null check (b15 >= 15 and b15 <= 25),
-  CONSTRAINT lotofacil_id_b1_b15_pk PRIMARY KEY (b1_b15_id, b1, b15),
-  CONSTRAINT lotofacil_id_b1_b15_unk UNIQUE (b1, b15)
-);
-
-drop table if EXISTS lotofacil.lotofacil_id_b1_b8_b15;
-create table lotofacil.lotofacil_id_b1_b8_b15(
-  b1_b8_b15_id numeric not null,
-  b1 numeric not null check (b1 >= 1 and b1 <= 11),
-  b8 numeric not null check (b8 >= 8 and b8 <= 18),
-  b15 numeric not null check (b15 >= 15 and b15 <= 25),
-  CONSTRAINT lotofacil_id_b1_b8_b15_pk PRIMARY KEY (b1_b8_b15_id, b1, b8, b15),
-  CONSTRAINT lotofacil_id_b1_b8_b15_unk UNIQUE (b1, b8, b15)
-);
-
-drop table if EXISTS lotofacil.lotofacil_id_b1_b4_b8_b12_b15;
-create table lotofacil.lotofacil_id_b1_b4_b8_b12_b15(
-  b1_b4_b8_b12_b15_id numeric not null,
-  b1 numeric not null check (b1 >= 1 and b1 <= 11),
-  b4 numeric not null check (b4 >= 4 and b4 <= 14),
-  b8 numeric not null check (b8 >= 8 and b8 <= 18),
-  b12 numeric not null check (b12 >= 12 and b12 <= 22),
-  b15 numeric not null check (b15 >= 15 and b15 <= 25),
-  CONSTRAINT lotofacil_id_b1_b4_b8_b12_b15_pk PRIMARY KEY (b1_b4_b8_b12_b15_id, b1, b4, b8, b12, b15),
-  CONSTRAINT lotofacil_id_b1_b4_b8_b12_b15_unk UNIQUE (b1, b4, b8, b12, b15)
-);
-
-
 drop function if exists lotofacil.fn_lotofacil_id_b1_ate_b15();
 create function lotofacil.fn_lotofacil_id_b1_ate_b15()
   returns VOID
@@ -758,70 +1337,6 @@ create function lotofacil.fn_lotofacil_id_b1_ate_b15()
 
 Select lotofacil.fn_lotofacil_id_b1_ate_b15();
 
-
-drop table if exists lotofacil.lotofacil_id_grupo;
-create table lotofacil.lotofacil_id_grupo (
-  grp_id numeric not null,
-  bola numeric not null,
-  CONSTRAINT lotofacil_id_grupo_pk PRIMARY KEY (grp_id),
-  CONSTRAINT lotofacil_id_grupo_unk UNIQUE (bola)
-);
-
-
-drop table if exists lotofacil.lotofacil_id_grupo_2bolas;
-create table lotofacil.lotofacil_id_grupo_2bolas (
-  grp_id numeric not null,
-  bola1 numeric not null check(bola1 < bola2),
-  bola2 numeric not null check(bola1 < bola2),
-  CONSTRAINT lotofacil_id_grupo_2bolas_pk PRIMARY KEY (grp_id),
-  CONSTRAINT lotofacil_id_grupo_2bolas_unk UNIQUE (bola1, bola2)
-);
-
-drop table if exists lotofacil.lotofacil_id_grupo_3bolas;
-create table lotofacil.lotofacil_id_grupo_3bolas (
-  grp_id numeric not null,
-  bola1 numeric not null,
-  bola2 numeric not null check(bola1 < bola2),
-  bola3 numeric not null check(bola2 < bola3),
-  CONSTRAINT lotofacil_id_grupo_3bolas_pk PRIMARY KEY (grp_id),
-  CONSTRAINT lotofacil_id_grupo_3bolas_unk UNIQUE (bola1, bola2, bola3),
-  CONSTRAINT lotofacil_id_grupo_3bolas_chk check(bola1 >= 1 and bola1 <= 25 and
-                                             bola2 >= 1 and bola2 <= 25 AND
-                                             bola3 >= 1 and bola3 <= 25)
-);
-
-drop table if exists lotofacil.lotofacil_id_grupo_4bolas;
-create table lotofacil.lotofacil_id_grupo_4bolas (
-  grp_id numeric not null,
-  bola1 numeric not null,
-  bola2 numeric not null check(bola1 < bola2),
-  bola3 numeric not null check(bola2 < bola3),
-  bola4 numeric not null check(bola3 < bola4),
-  CONSTRAINT lotofacil_id_grupo_4bolas_pk PRIMARY KEY (grp_id),
-  CONSTRAINT lotofacil_id_grupo_4bolas_unk UNIQUE (bola1, bola2, bola3, bola4),
-  CONSTRAINT lotofacil_id_grupo_4bolas_chk check(bola1 >= 1 and bola1 <= 25 and
-                                             bola2 >= 1 and bola2 <= 25 AND
-                                             bola3 >= 1 and bola3 <= 25 AND
-                                             bola4 >= 1 and bola4 <= 25)
-);
-
-drop table if exists lotofacil.lotofacil_id_grupo_5bolas;
-create table lotofacil.lotofacil_id_grupo_5bolas (
-  grp_id numeric not null,
-  bola1 numeric not null,
-  bola2 numeric not null check(bola1 < bola2),
-  bola3 numeric not null check(bola2 < bola3),
-  bola4 numeric not null check(bola3 < bola4),
-  bola5 numeric not null check(bola4 < bola5),
-  CONSTRAINT lotofacil_id_grupo_5bolas_pk PRIMARY KEY (grp_id),
-  CONSTRAINT lotofacil_id_grupo_5bolas_unk UNIQUE (bola1, bola2, bola3, bola4, bola5),
-  CONSTRAINT lotofacil_id_grupo_5bolas_chk check(bola1 >= 1 and bola1 <= 25 and
-                                             bola2 >= 1 and bola2 <= 25 AND
-                                             bola3 >= 1 and bola3 <= 25 AND
-                                             bola4 >= 1 and bola4 <= 25 AND
-                                             bola5 >= 1 and bola5 <= 25)
-);
-
 drop function if exists lotofacil.fn_lotofacil_id_grupo();
 create function lotofacil.fn_lotofacil_id_grupo()
   returns VOID
@@ -843,7 +1358,7 @@ create function lotofacil.fn_lotofacil_id_grupo()
     Delete from lotofacil.lotofacil_id_grupo_4bolas;
     Delete from lotofacil.lotofacil_id_grupo_5bolas;
 
-    contadorID := 0;
+    contadorID := -1;
     for uA in 1..25 LOOP
         contadorID := contadorID + 1;
         Insert Into lotofacil.lotofacil_id_grupo(grp_id, bola) VALUES
@@ -851,7 +1366,7 @@ create function lotofacil.fn_lotofacil_id_grupo()
     END LOOP;
 
 
-    contadorID := 0;
+    contadorID := -1;
     for uA in 1..25 LOOP
       for ub in (uA + 1)..25 LOOP
         contadorID := contadorID + 1;
@@ -860,7 +1375,7 @@ create function lotofacil.fn_lotofacil_id_grupo()
       END LOOP;
     END LOOP;
 
-    contadorID := 0;
+    contadorID := -1;
     for uA in 1..25 LOOP
       for ub in (uA + 1)..25 LOOP
         for uC in (uB + 1)..25 loop
@@ -871,7 +1386,7 @@ create function lotofacil.fn_lotofacil_id_grupo()
       END LOOP;
     END LOOP;
 
-    contadorID := 0;
+    contadorID := -1;
     for uA in 1..25 LOOP
       for ub in (uA + 1)..25 LOOP
         for uC in (uB + 1)..25 loop
@@ -884,7 +1399,7 @@ create function lotofacil.fn_lotofacil_id_grupo()
       END LOOP;
     END LOOP;
 
-    contadorID := 0;
+    contadorID := -1;
     for uA in 1..25 LOOP
       for ub in (uA + 1)..25 LOOP
         for uC in (uB + 1)..25 loop
@@ -900,22 +1415,6 @@ create function lotofacil.fn_lotofacil_id_grupo()
     END LOOP;
   end $$;
 
-Select lotofacil.fn_lotofacil_id_grupo();
-
-drop table if exists lotofacil.lotofacil_id_primo;
-create table lotofacil.lotofacil_id_primo(
-  prm_id numeric not null,
-  prm_qt numeric not null,
-  primo numeric not null,
-  nao_primo numeric not null,
-
-  CONSTRAINT lotofacil_id_primo_pk PRIMARY KEY (prm_id),
-  CONSTRAINT lotofacil_id_primo_unk unique (primo, nao_primo)
-);
-comment on table lotofacil.lotofacil_id_primo IS
-'Esta tabela armazena todas as combinações possíveis de números primos na lotofacil.'
-'Os números primos são: 2, 3, 5, 7, 11, 13, 17, 19, 23.'
-'Ou seja, há 9 números primos, isto que dizer que pode haver no máximo 9 números primos';
 
 drop function if exists lotofacil.fn_lotofacil_id_primo();
 create function lotofacil.fn_lotofacil_id_primo()
@@ -958,7 +1457,12 @@ comment on FUNCTION lotofacil.fn_lotofacil_id_primo() IS
 'A lógica da função e verificar se a quantidade de números primos + números pares é igual a 15, 16, 17 ou 18,'
 'se sim registrar isto na tabela.';
 
-Select lotofacil.fn_lotofacil_id_primo();
+-- Select lotofacil.fn_lotofacil_id_primo();
+
+*/
+
+
+
 
 
 

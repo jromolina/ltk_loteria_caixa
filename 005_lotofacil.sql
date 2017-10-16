@@ -7,6 +7,15 @@
 /**
   Apaga as views, pois ela depende das tabelas deste arquivo.
  */
+drop view if exists lotofacil.v_lotofacil_par_impar;
+drop view if exists lotofacil.v_lotofacil_par_impar_detalhado;
+
+drop view if exists lotofacil.v_lotofacil_externo_interno;
+drop view if exists lotofacil.v_lotofacil_externo_interno_detalhado;
+
+drop view if exists lotofacil.v_lotofacil_primo;
+drop view if exists lotofacil.v_lotofacil_primo_detalhado;
+
 drop view if exists lotofacil.v_lotofacil_horizontal;
 drop view if exists lotofacil.v_lotofacil_horizontal_detalhado;
 
@@ -19,17 +28,12 @@ drop view if exists lotofacil.v_lotofacil_diagonal_detalhado;
 drop view if exists lotofacil.v_lotofacil_cruzeta;
 drop view if exists lotofacil.v_lotofacil_cruzeta_detalhado;
 
-drop view if exists lotofacil.v_lotofacil_externo_interno;
-drop view if exists lotofacil.v_lotofacil_externo_interno_detalhado;
-
 drop view if exists lotofacil.v_lotofacil_quarteto;
 drop view if exists lotofacil.v_lotofacil_quarteto_detalhado;
 
-drop view if exists lotofacil.v_lotofacil_primo;
-drop view if exists lotofacil.v_lotofacil_primo_detalhado;
+drop view if exists lotofacil.v_lotofacil_trio;
+drop view if exists lotofacil.v_lotofacil_trio_detalhado;
 
-drop view if exists lotofacil.v_lotofacil_par_impar;
-drop view if exists lotofacil.v_lotofacil_par_impar_detalhado;
 
 drop view if exists lotofacil.v_lotofacil_b1;
 drop view if exists lotofacil.v_lotofacil_b1_b15;
@@ -60,7 +64,10 @@ drop table if exists lotofacil.lotofacil_cruzeta;
 drop table if exists lotofacil.lotofacil_quarteto;
 drop table if exists lotofacil.lotofacil_primo;
 
- alter table lotofacil.lotofacil_resultado_num drop CONSTRAINT lotofacil_resultado_fk;
+drop table if exists lotofacil.lotofacil_id;
+
+drop table if exists lotofacil.lotofacil_novos_repetidos;
+
 drop table if exists lotofacil.lotofacil_num;
 
 
@@ -117,8 +124,7 @@ comment on table lotofacil.lotofacil_num is
 'o campo terá o valor 1, se a bola foi sorteada, 0 (zero) caso contrário.'
 'Tem que ser sorteado 20 números, senão a restrição de verificação não irá deixar inserir o registro.';
 
-alter table lotofacil.lotofacil_resultado_num add CONSTRAINT lotofacil_resultado_fk FOREIGN KEY (ltf_id) references
-  lotofacil.lotofacil_num(ltf_id);
+--alter table lotofacil.lotofacil_resultado_num add CONSTRAINT lotofacil_resultado_fk FOREIGN KEY (ltf_id) references lotofacil.lotofacil_num(ltf_id);
 
 
 
@@ -169,6 +175,14 @@ create table lotofacil.lotofacil_bolas(
   )
 );
 
+/**
+  Analisando aqui, achei mais preferível ter uma outra, tabela, que tem os campos ltf_id, ltf_qt
+  e todos os ids, de pares x impares, externos x internos, ao invés de ter tabelas separadas pra cada
+  assunto neste caso.
+  No caso das tabelas, de grupos, é que haverá tabelas separadas:
+  lotofacil_grupo_2_bolas, lotofacil_grupo_3_bolas e assim por diante.
+  Pois, quando for realizar a consulta, eu não precisaremos realizar muitos joins.
+ */
 drop table if exists lotofacil.lotofacil_par_impar;
 create table lotofacil.lotofacil_par_impar(
   ltf_id numeric not null,
@@ -378,53 +392,53 @@ create table lotofacil.lotofacil_grupo_5bolas(
 );
 
 /**
-  As tabelas que tem o final do nome com a palavra agrupada.
-  quer dizer, que são tabelas consolidadas, agrupadas.
-  Haverá duas tabelas agrupadas, uma por identificador do grupo, e,
-  outra, agrupada por quantidade de bolas e pelo identificador do grupo.
+  As tabelas que tem o final do nome com a palavra consolidado.
+  quer dizer, que são tabelas consolidadas, consolidados.
+  Haverá duas tabelas consolidados, uma por identificador do grupo, e,
+  outra, consolidado por quantidade de bolas e pelo identificador do grupo.
   
   Tabelas, onde o agrupamento é a quantidade de bolas e o id do grupo
-  terão o sufixo _agrupada_qt no final do nome da tabela.
+  terão o sufixo _consolidado_qt no final do nome da tabela.
   
  */
-drop table if exists lotofacil.lotofacil_grupo_2bolas_agrupada_qt;
-create table lotofacil.lotofacil_grupo_2bolas_agrupada_qt(
+drop table if exists lotofacil.lotofacil_grupo_2bolas_consolidado_por_bolas;
+create table lotofacil.lotofacil_grupo_2bolas_consolidado_qt(
   ltf_qt numeric not null  check(ltf_qt in (15, 16, 17, 18)),
   grp_id numeric not null,
   qt_vezes numeric not null,
 
-  CONSTRAINT lotofacil_grupo_2bolas_agrupada_qt_pk PRIMARY KEY (ltf_qt, grp_id),
-  CONSTRAINT lotofacil_grupo_2bolas_agrupada_qt_unk UNIQUE (ltf_qt, grp_id)
+  CONSTRAINT lotofacil_grupo_2bolas_consolidado_qt_pk PRIMARY KEY (ltf_qt, grp_id),
+  CONSTRAINT lotofacil_grupo_2bolas_consolidado_qt_unk UNIQUE (ltf_qt, grp_id)
 );
 
-drop table if exists lotofacil.lotofacil_grupo_3bolas_agrupada_qt;
-create table lotofacil.lotofacil_grupo_3bolas_agrupada_qt(
+drop table if exists lotofacil.lotofacil_grupo_3bolas_consolidado_por_bolas;
+create table lotofacil.lotofacil_grupo_3bolas_consolidado_qt(
   ltf_qt numeric not null  check(ltf_qt in (15, 16, 17, 18)),
   grp_id numeric not null,
   qt_vezes numeric not null,
 
-  CONSTRAINT lotofacil_grupo_3bolas_agrupada_qt_pk PRIMARY KEY (ltf_qt, grp_id),
-  CONSTRAINT lotofacil_grupo_3bolas_agrupada_qt_unk UNIQUE (ltf_qt, grp_id)
+  CONSTRAINT lotofacil_grupo_3bolas_consolidado_qt_pk PRIMARY KEY (ltf_qt, grp_id),
+  CONSTRAINT lotofacil_grupo_3bolas_consolidado_qt_unk UNIQUE (ltf_qt, grp_id)
 );
 
-drop table if exists lotofacil.lotofacil_grupo_4bolas_agrupada_qt;
-create table lotofacil.lotofacil_grupo_4bolas_agrupada_qt(
+drop table if exists lotofacil.lotofacil_grupo_4bolas_consolidado_por_bolas;
+create table lotofacil.lotofacil_grupo_4bolas_consolidado_qt(
   ltf_qt numeric not null  check(ltf_qt in (15, 16, 17, 18)),
   grp_id numeric not null,
   qt_vezes numeric not null,
 
-  CONSTRAINT lotofacil_grupo_4bolas_agrupada_qt_pk PRIMARY KEY (ltf_qt, grp_id),
-  CONSTRAINT lotofacil_grupo_4bolas_agrupada_qt_unk UNIQUE (ltf_qt, grp_id)
+  CONSTRAINT lotofacil_grupo_4bolas_consolidado_qt_pk PRIMARY KEY (ltf_qt, grp_id),
+  CONSTRAINT lotofacil_grupo_4bolas_consolidado_qt_unk UNIQUE (ltf_qt, grp_id)
 );
 
-drop table if exists lotofacil.lotofacil_grupo_5bolas_agrupada_qt;
-create table lotofacil.lotofacil_grupo_5bolas_agrupada_qt(
+drop table if exists lotofacil.lotofacil_grupo_5bolas_consolidado_por_bolas;
+create table lotofacil.lotofacil_grupo_5bolas_consolidado_qt(
   ltf_qt numeric not null  check(ltf_qt in (15, 16, 17, 18)),
   grp_id numeric not null,
   qt_vezes numeric not null,
 
-  CONSTRAINT lotofacil_grupo_5bolas_agrupada_qt_pk PRIMARY KEY (ltf_qt, grp_id),
-  CONSTRAINT lotofacil_grupo_5bolas_agrupada_qt_unk UNIQUE (ltf_qt, grp_id)
+  CONSTRAINT lotofacil_grupo_5bolas_consolidado_qt_pk PRIMARY KEY (ltf_qt, grp_id),
+  CONSTRAINT lotofacil_grupo_5bolas_consolidado_qt_unk UNIQUE (ltf_qt, grp_id)
 );
 
 
@@ -535,23 +549,34 @@ create function lotofacil.fn_lotofacil_id()
     Insert Into lotofacil.lotofacil_id(
       ltf_id, ltf_qt, par_impar_id, ext_id,  int_id, prm_id, hrz_id, vrt_id, dg_id, crz_id, qrt_id,
       b1_id, b1_b4_b8_b12_b15_id, b1_b8_b15_id, b1_b15_id)
-      Select ltf_id, ltf_qt, par_impar_id, ext_id,  int_id, prm_id, hrz_id, vrt_id, dg_id, crz_id, qrt_id,
+      Select lotofacil.lotofacil_par_impar.ltf_id, 
+        lotofacil.lotofacil_par_impar.ltf_qt, 
+        par_impar_id, ext_id,  int_id, prm_id, hrz_id, vrt_id, dg_id, crz_id, qrt_id,
         b1_id, b1_b4_b8_b12_b15_id, b1_b8_b15_id, b1_b15_id FRom
-          lotofacil_par_impar, lotofacil_externo_interno, lotofacil_primo, lotofacil_horizontal,
-        lotofacil_vertical, lotofacil_diagonal, lotofacil_cruzeta, lotofacil_quarteto,
-        lotofacil_b1, lotofacil_b1_b4_b8_b12_b15, lotofacil_b1_b8_b15, lotofacil_b1_b15
-    where lotofacil_par_impar.ltf_id = lotofacil_externo_interno.ltf_id AND
-      lotofacil.lotofacil_externo_interno.ltf_id = lotofacil.lotofacil_primo.ltf_id
+
+        lotofacil.lotofacil_par_impar,
+        lotofacil.lotofacil_externo_interno,
+        lotofacil.lotofacil_primo,
+        lotofacil.lotofacil_horizontal,
+        lotofacil.lotofacil_vertical,
+        lotofacil.lotofacil_diagonal,
+        lotofacil.lotofacil_cruzeta,
+        lotofacil.lotofacil_quarteto,
+        lotofacil.lotofacil_b1,
+        lotofacil.lotofacil_b1_b4_b8_b12_b15,
+        lotofacil.lotofacil_b1_b8_b15,
+        lotofacil.lotofacil_b1_b15
+    where lotofacil.lotofacil_par_impar.ltf_id = lotofacil.lotofacil_externo_interno.ltf_id
+    AND lotofacil.lotofacil_externo_interno.ltf_id = lotofacil.lotofacil_primo.ltf_id
     and lotofacil.lotofacil_primo.ltf_id = lotofacil.lotofacil_horizontal.ltf_id
     and lotofacil.lotofacil_horizontal.ltf_id = lotofacil.lotofacil_vertical.ltf_id
-    and lotofacil.lotofacil_vertical.ltf_id = lotofacil.lotofacil_diagonal.ltf
+    and lotofacil.lotofacil_vertical.ltf_id = lotofacil.lotofacil_diagonal.ltf_id
+    and lotofacil.lotofacil_diagonal.ltf_id = lotofacil.lotofacil_cruzeta.ltf_id
     and lotofacil.lotofacil_cruzeta.ltf_id = lotofacil.lotofacil_quarteto.ltf_id
     and lotofacil.lotofacil_quarteto.ltf_id = lotofacil.lotofacil_b1.ltf_id
     and lotofacil.lotofacil_b1.ltf_id = lotofacil.lotofacil_b1_b4_b8_b12_b15.ltf_id
     and lotofacil.lotofacil_b1_b4_b8_b12_b15.ltf_id = lotofacil.lotofacil_b1_b8_b15.ltf_id
-    and lotofacil.lotofacil_b1_b8_b15.ltf_id
-
-
+    and lotofacil.lotofacil_b1_b8_b15.ltf_id = lotofacil.lotofacil_b1_b15.ltf_id;
 
   END;$$;
 
@@ -1337,6 +1362,189 @@ create function lotofacil.fn_executarFuncoes() returns VOID
 
 
 
+drop table if exists lotofacil.lotofacil_novos_repetidos;
+create table lotofacil.lotofacil_novos_repetidos(
+  ltf_id numeric not null,
+  ltf_qt numeric not null,
+  nvrpt_id numeric not null,
+  concurso numeric not null,
+  CONSTRAINT lotofacil_novos_repetidos_pk PRIMARY KEY (ltf_id),
+  CONSTRAINT lotofacil_novos_repetidos_fk FOREIGN KEY (ltf_id) REFERENCES lotofacil.lotofacil_num(ltf_id)
+  on update cascade on delete cascade
+);
+comment on column lotofacil.lotofacil_novos_repetidos.concurso IS
+'Indica de qual concurso da tabela lotofacil.lotofacil_resultado_num, a quantidade de novos e reptidos é baseada.';
+
+/**
+  Esta função é similar à função: lotofacil.fn_lotofacil_resultado_atualizar_novos_repetidos,
+  entretanto, aqui, iremos comparar todas as combinações da lotofacil com a combinação
+  atual do resultado da lotofacil que queremos.
+ */
+
+drop function if exists lotofacil.fn_lotofacil_atualizar_novos_repetidos(numeric);
+create function lotofacil.fn_lotofacil_atualizar_novos_repetidos(concurso_analisar numeric)
+  returns void
+  LANGUAGE plpgsql
+  as $$
+  DECLARE
+    reg_lotofacil_num         lotofacil.lotofacil_num%ROWTYPE;
+    reg_lotofacil_resultado_num  lotofacil.lotofacil_resultado_num%ROWTYPE;
+
+    total_registros_resultado_bolas_num numeric;
+
+    -- Conta cada registro.
+    contador_registro numeric;
+
+    -- Conta a quantidade de bola encontrada, parando, quando atingir 15.
+    contador_bolas numeric;
+
+    -- Arranjo que armazena cada bola.
+    -- O índice 0, tem o número do concurso.
+    lotofacil_resultado_num numeric[26];
+    lotofacil_num numeric[26];
+
+    qt_novos numeric;
+    qt_repetidos numeric;
+
+  begin
+
+    Select * from lotofacil.lotofacil_resultado_num
+      where concurso = concurso_analisar
+    into reg_lotofacil_resultado_num;
+
+    if reg_lotofacil_resultado_num is null THEN
+      Raise Notice 'Nenhum registro encontrado';
+      return;
+    END IF;
+
+    /* Deleta os registros */
+    Delete from lotofacil.lotofacil_novos_repetidos;
+
+    /* Aqui, não precisaremos de copiar o registro atual para ser um registro anterior
+      pois a comparação sempre será com o registro da tabela lotofacil.lotofacil_concurso_num
+      fornecido pelo usuário.
+     */
+    lotofacil_resultado_num[0] = reg_lotofacil_num.ltf_id;
+    lotofacil_resultado_num[1] = reg_lotofacil_num.num_1;
+    lotofacil_resultado_num[2] = reg_lotofacil_num.num_2;
+    lotofacil_resultado_num[3] = reg_lotofacil_num.num_3;
+    lotofacil_resultado_num[4] = reg_lotofacil_num.num_4;
+    lotofacil_resultado_num[5] = reg_lotofacil_num.num_5;
+    lotofacil_resultado_num[6] = reg_lotofacil_num.num_6;
+    lotofacil_resultado_num[7] = reg_lotofacil_num.num_7;
+    lotofacil_resultado_num[8] = reg_lotofacil_num.num_8;
+    lotofacil_resultado_num[9] = reg_lotofacil_num.num_9;
+    lotofacil_resultado_num[10] = reg_lotofacil_num.num_10;
+    lotofacil_resultado_num[11] = reg_lotofacil_num.num_11;
+    lotofacil_resultado_num[12] = reg_lotofacil_num.num_12;
+    lotofacil_resultado_num[13] = reg_lotofacil_num.num_13;
+    lotofacil_resultado_num[14] = reg_lotofacil_num.num_14;
+    lotofacil_resultado_num[15] = reg_lotofacil_num.num_15;
+    lotofacil_resultado_num[16] = reg_lotofacil_num.num_16;
+    lotofacil_resultado_num[17] = reg_lotofacil_num.num_17;
+    lotofacil_resultado_num[18] = reg_lotofacil_num.num_18;
+    lotofacil_resultado_num[19] = reg_lotofacil_num.num_19;
+    lotofacil_resultado_num[20] = reg_lotofacil_num.num_20;
+    lotofacil_resultado_num[21] = reg_lotofacil_num.num_21;
+    lotofacil_resultado_num[22] = reg_lotofacil_num.num_22;
+    lotofacil_resultado_num[23] = reg_lotofacil_num.num_23;
+    lotofacil_resultado_num[24] = reg_lotofacil_num.num_24;
+    lotofacil_resultado_num[25] = reg_lotofacil_num.num_25;
+
+    for reg_lotofacil_num in
+      Select * from lotofacil.lotofacil_num
+      order by ltf_id
+    LOOP
+      lotofacil_num[0] = reg_lotofacil_num.ltf_id;
+      lotofacil_num[1] = reg_lotofacil_num.num_1;
+      lotofacil_num[2] = reg_lotofacil_num.num_2;
+      lotofacil_num[3] = reg_lotofacil_num.num_3;
+      lotofacil_num[4] = reg_lotofacil_num.num_4;
+      lotofacil_num[5] = reg_lotofacil_num.num_5;
+      lotofacil_num[6] = reg_lotofacil_num.num_6;
+      lotofacil_num[7] = reg_lotofacil_num.num_7;
+      lotofacil_num[8] = reg_lotofacil_num.num_8;
+      lotofacil_num[9] = reg_lotofacil_num.num_9;
+      lotofacil_num[10] = reg_lotofacil_num.num_10;
+      lotofacil_num[11] = reg_lotofacil_num.num_11;
+      lotofacil_num[12] = reg_lotofacil_num.num_12;
+      lotofacil_num[13] = reg_lotofacil_num.num_13;
+      lotofacil_num[14] = reg_lotofacil_num.num_14;
+      lotofacil_num[15] = reg_lotofacil_num.num_15;
+      lotofacil_num[16] = reg_lotofacil_num.num_16;
+      lotofacil_num[17] = reg_lotofacil_num.num_17;
+      lotofacil_num[18] = reg_lotofacil_num.num_18;
+      lotofacil_num[19] = reg_lotofacil_num.num_19;
+      lotofacil_num[20] = reg_lotofacil_num.num_20;
+      lotofacil_num[21] = reg_lotofacil_num.num_21;
+      lotofacil_num[22] = reg_lotofacil_num.num_22;
+      lotofacil_num[23] = reg_lotofacil_num.num_23;
+      lotofacil_num[24] = reg_lotofacil_num.num_24;
+      lotofacil_num[25] = reg_lotofacil_num.num_25;
+
+      -- Iremos comparar cada combinação possível da lotofacil
+      -- com a combinação fornecida pelo usuário através do número
+      -- do concurso.
+      qt_repetidos := 0;
+      qt_novos := 0;
+      contador_bolas := 0;
+
+      -- No loop abaixo, iremos comparar cada campo de prefixo num_ do registro
+      -- atual com cada campo de prefixo num_ do registro anterior.
+      -- Se o campo atual tiver o valor 1, então:
+      -- Se o campo anterior tiver o valor 0, quer dizer, que a bola que corresponde
+      -- àquele campo é nova, senão, se o valor fo 1, quer dizer, que a bola está
+      -- se repetindo.
+      -- Resumindo, iremos contabilizar, a quantidade de novos e repetidos, comparando
+      -- sempre com o registro anterior.
+
+      for uA in 1..25 LOOP
+
+        if lotofacil_num[uA] = 1 then
+
+          -- Se o campo atual do registro atual e o campo do registro anterior
+          -- for 1, quer dizer, que são repetidos.
+
+          if lotofacil_resultado_num[uA] = 1 THEN
+            qt_repetidos := qt_repetidos + 1;
+          ELSE
+            qt_novos := qt_novos + 1;
+          end if;
+        end if;
+
+      END LOOP;
+
+      Raise Notice '%', reg_lotofacil_num.ltf_id;
+
+      -- Insere um novo registro.
+      Insert into lotofacil.lotofacil_novos_repetidos (ltf_id, ltf_qt, nvrpt_id, concurso)
+        SELECT reg_lotofacil_num.ltf_id, reg_lotofacil_num.ltf_qt, nvrpt_id, concurso_analisar
+          FROM lotofacil.lotofacil_id_novos_repetidos
+      where novos = qt_novos and repetidos = qt_repetidos;
+    END LOOP;
+  end;
+  $$;
+
+
+/**
+  Cria uma view onde, pegaremos todos os valores de novos e repetimos e compararmos com a tabela
+  de resultados.
+
+ */
+drop view if exists lotofacil.v_lotofacil_novos_repetidos;
+create view lotofacil.v_lotofacil_novos_repetidos
+  as select ltf_num.novos_repetidos_id, novos, repetidos, ltf_qt, res_qt FROM
+    (Select novos_repetidos_id, count(*) as ltf_qt
+      from lotofacil.lotofacil_novos_repetidos
+      group by novos_repetidos_id
+    ) ltf_num,
+    (
+      Select novos_repetidos_id, count(*) as res_qt from lotofacil.lotofacil_resultado_novos_repetidos
+      group by nvrpt_id
+    ) ltf_res,
+    lotofacil.lotofacil_id_novos_repetidos ltf_id_novos
+  where ltf_num.novos_repetidos_id = ltf_id_novos.novos_repetidos_id
+  and ltf_res.novos_repetidos_id = ltf_id_novos.novos_repetidos_id;
 
 
 
@@ -1344,6 +1552,32 @@ create function lotofacil.fn_executarFuncoes() returns VOID
 
 
 
+
+
+/*
+  Tabelas de grupo consolidada.
+ */
+drop table if exists lotofacil.lotofacil_grupo_14bolas_consolidado;
+create table lotofacil.lotofacil_grupo_14bolas_consolidado(
+  grp_id numeric not null,
+  qt_vezes numeric not null,
+  
+  constraint lotofacil_grupo_14bolas_consolidado_pk PRIMARY KEY (grp_id),
+  constraint lotofacil_grupo_14bolas_consolidado_fk FOREIGN KEY (grp_id) REFERENCES 
+    lotofacil.lotofacil_id_grupo_14bolas on update cascade on delete cascade
+);
+
+drop table if exists lotofacil.lotofacil_grupo_14bolas_consolidado_por_bolas;
+create table lotofacil.lotofacil_grupo_14bolas_consolidado_por_bolas(
+  grp_id numeric not null,
+  ltf_qt numeric not null,
+  qt_vezes numeric not null,
+  
+  constraint lotofacil_grupo_14bolas_consolidado_por_bolas_pk PRIMARY KEY (grp_id, ltf_qt),
+  constraint lotofacil_grupo_14bolas_consolidado_por_bolas_fk FOREIGN KEY (grp_id) REFERENCES 
+    lotofacil.lotofacil_id_grupo_14bolas on update cascade on delete cascade,
+  constraint lotofacil_grupo_14bolas_consolidado_por_bolas_unk UNIQUE (grp_id, ltf_qt, qt_vezes)
+);
 
 
 
